@@ -168,12 +168,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
 
 # Abstra
 # Abstra is an AI-powered process automation framework.
@@ -187,6 +181,12 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
+
+# IntelliJ IDEA / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
 
 # Ruff stuff:
 .ruff_cache/
@@ -205,3 +205,37 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ==================== 智学助手项目特定配置 ====================
+
+# 模型文件（大文件，不提交到Git）
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.onnx
+*.mlmodel
+
+# 模型缓存目录
+ai_module/models/
+models/
+models--*/
+
+# HuggingFace模型缓存中的Git子仓库
+**/.git
+
+# 项目数据文件
+data/
+uploads/
+*.db
+*.sqlite3
+*.faiss
+*.index
+*.pkl
+*.joblib
+
+# 日志文件
+*.log
+logs/

@@ -1,0 +1,19 @@
+<view class="container">
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索资料..." bindinput="onSearch" />
+  </view>
+  
+  <view class="file-grid">
+    <view class="file-card" wx:for="{{files}}" wx:key="id" bindtap="viewFile" data-id="{{item.id}}">
+      <text class="file-icon">{{item.type === 'pdf' ? '📄' : item.type === 'image' ? '🖼️' : '📝'}}</text>
+      <text class="file-name">{{item.name}}</text>
+      <text class="file-meta">{{item.size}} · {{item.time}}</text>
+    </view>
+  </view>
+  
+  <view class="empty-state" wx:if="{{files.length === 0}}">
+    <text class="empty-icon">📂</text>
+    <text class="empty-text">暂无资料</text>
+    <text class="empty-hint">点击首页上传按钮添加资料</text>
+  </view>
+</view>

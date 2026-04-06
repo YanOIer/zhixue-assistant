@@ -1,0 +1,31 @@
+<view class="container">
+  <scroll-view class="chat-container" scroll-y scroll-into-view="{{scrollToView}}" enhanced show-scrollbar>
+    <view class="message-list">
+      <view class="message {{item.type}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
+        <view class="avatar">{{item.type === 'user' ? '👤' : '🤖'}}</view>
+        <view class="content">
+          <text class="text">{{item.content}}</text>
+          <view class="sources" wx:if="{{item.sources && item.sources.length > 0}}">
+            <text class="sources-title">参考来源：</text>
+            <text class="source-item" wx:for="{{item.sources}}" wx:for-item="source" wx:key="*this">{{source}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="loading-message" wx:if="{{isLoading}}">
+        <view class="avatar">🤖</view>
+        <view class="content">
+          <view class="loading-dots">
+            <text>.</text><text>.</text><text>.</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  
+  <view class="input-area">
+    <input class="message-input" placeholder="输入问题..." value="{{inputValue}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" />
+    <button class="send-btn" bindtap="sendMessage" disabled="{{!inputValue || isLoading}}">
+      发送
+    </button>
+  </view>
+</view>

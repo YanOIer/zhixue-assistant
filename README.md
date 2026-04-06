@@ -14,13 +14,68 @@ git clone git@github.com:YanOIer/zhixue-assistant.git
 cd zhixue-assistant
 ```
 
-### 2. 查看你的分工
+### 2. 安装开发工具
+
+根据你的角色选择需要安装的软件：
+
+#### 🎨 前端开发必备
+| 软件 | 用途 | 下载 |
+|------|------|------|
+| **微信开发者工具** | 小程序开发调试（必装） | [下载](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html) |
+| **VS Code** | 代码编辑（推荐） | [下载](https://code.visualstudio.com/) |
+| **Git** | 版本控制 | [下载](https://git-scm.com/download/win) |
+
+**VS Code插件推荐**：微信小程序开发助手、ESLint、Prettier
+
+#### ⚙️ 后端开发必备
+| 软件 | 用途 | 下载 |
+|------|------|------|
+| **Python 3.9+** | 运行环境 | [下载](https://www.python.org/downloads/) |
+| **VS Code** | 代码编辑（推荐） | [下载](https://code.visualstudio.com/) |
+| **Git** | 版本控制 | [下载](https://git-scm.com/download/win) |
+| **Postman** | API接口测试 | [下载](https://www.postman.com/downloads/) |
+
+**VS Code插件推荐**：Python、Pylance、autoDocstring
+
+---
+
+### 3. 环境配置
+
+#### 前端同学
+```bash
+# 1. 克隆项目
+git clone git@github.com:YanOIer/zhixue-assistant.git
+
+# 2. 用微信开发者工具打开 frontend/ 目录
+# 3. 查看 docs/前端开发指南.md 开始开发
+```
+
+#### 后端同学
+```bash
+# 1. 克隆项目
+git clone git@github.com:YanOIer/zhixue-assistant.git
+cd zhixue-assistant
+
+# 2. 创建虚拟环境
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+
+# 3. 安装依赖
+pip install -r backend/requirements.txt
+pip install -r ai_module/requirements.txt
+
+# 4. 查看 docs/后端开发指南.md 开始开发
+```
+
+---
+
+### 4. 查看你的分工
 根据你的角色查看对应的开发指南：
 - **组长** → [docs/组长职责.md](./docs/组长职责.md)
 - **前端开发** → [docs/前端开发指南.md](./docs/前端开发指南.md)  
 - **后端开发** → [docs/后端开发指南.md](./docs/后端开发指南.md)
 
-### 3. 项目时间线
+### 5. 项目时间线
 - **开始日期**：2024年4月6日
 - **目标完成**：2024年4月20日
 - **截止日期**：2024年4月24日

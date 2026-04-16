@@ -1,10 +1,12 @@
 <view class="container">
+  <view class="clear-chat-btn" bindtap="clearChat" wx:if="{{messages.length > 1}}">🗑️</view>
+
   <scroll-view class="chat-container" scroll-y scroll-into-view="{{scrollToView}}" enhanced show-scrollbar>
     <view class="message-list">
-      <view class="message {{item.type}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
+      <view class="message {{item.type}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}" bindlongpress="onMessageLongPress" data-content="{{item.content}}">
         <view class="avatar">{{item.type === 'user' ? '👤' : '🤖'}}</view>
         <view class="content">
-          <text class="text">{{item.content}}</text>
+          <text class="text" selectable>{{item.content}}</text>
           <view class="sources" wx:if="{{item.sources && item.sources.length > 0}}">
             <text class="sources-title">参考来源：</text>
             <text class="source-item" wx:for="{{item.sources}}" wx:for-item="source" wx:key="*this">{{source}}</text>

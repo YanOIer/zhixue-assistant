@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "智学助手"
+  "navigationBarTitleText": "智学助手",
+  "enablePullDownRefresh": true,
+  "usingComponents": {}
 }

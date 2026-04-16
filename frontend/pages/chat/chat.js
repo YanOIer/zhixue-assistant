@@ -90,5 +90,38 @@ Page({
       isLoading: false,
       scrollToView: 'msg-' + errorMsg.id
     })
+  },
+
+  // 长按复制消息
+  onMessageLongPress(e) {
+    const content = e.currentTarget.dataset.content
+    wx.setClipboardData({
+      data: content,
+      success: () => {
+        wx.showToast({ title: '已复制', icon: 'success' })
+      }
+    })
+  },
+
+  // 清空对话
+  clearChat() {
+    wx.showModal({
+      title: '确认清空',
+      content: '确定要清空当前对话吗？',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({
+            messages: [
+              {
+                id: 1,
+                type: 'ai',
+                content: '你好！我是智学助手。请上传学习资料后，我可以基于资料内容为你解答问题。',
+                sources: []
+              }
+            ]
+          })
+        }
+      }
+    })
   }
 })

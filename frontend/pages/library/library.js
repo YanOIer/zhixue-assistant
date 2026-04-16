@@ -56,19 +56,54 @@ Page({
     if (!file) return
 
     wx.showActionSheet({
-      itemList: ['查看详情', '删除文件'],
+      itemList: ['查看详情', '预览文件', '删除文件'],
       success: (res) => {
         if (res.tapIndex === 0) {
           // 查看详情
           wx.showModal({
             title: '文件详情',
-            content: `文件名: ${file.name}\n类型: ${file.type}\n大小: ${file.size}\n上传时间: ${file.time}`,
+            content: `文件名: ${file.name}\n类型: ${file.type}\n分类: ${file.category}\n大小: ${file.size}\n上传时间: ${file.time}`,
             showCancel: false
           })
         } else if (res.tapIndex === 1) {
+          // 预览文件
+          this.previewFile(file)
+        } else if (res.tapIndex === 2) {
           // 删除文件
           this.deleteFile(id)
         }
+      }
+    })
+  },
+
+  // 预览文件
+  previewFile(file) {
+    // 构建文件URL
+    const fileUrl = `${app.globalData.apiBaseUrl}/uploads/${file.name}`
+
+    // 下载并预览
+    wx.downloadFile({
+      url: fileUrl,
+      success: (res) => {
+        if (res.statusCode === 200) {
+          const filePath = res.tempFilePath
+          wx.openDocument({
+            filePath: filePath,
+            fileType: file.type,
+            success: () => {
+              console.log('打开文档成功')
+            },
+            fail: (err) => {
+              wx.showToast({ title: '预览失败', icon: 'none' })
+              console.error('打开文档失败:', err)
+            }
+          })
+        } else {
+          wx.showToast({ title: '下载文件失败', icon: 'none' })
+        }
+      },
+      fail: () => {
+        wx.showToast({ title: '下载文件失败', icon: 'none' })
       }
     })
   },
@@ -109,5 +144,12 @@ Page({
   onPullDownRefresh() {
     this.loadFiles()
     wx.stopPullDownRefresh()
+  },
+
+  // 跳转到上传页面
+  goToUpload() {
+    wx.switchTab({
+      url: '/pages/index/index'
+    })
   }
 })

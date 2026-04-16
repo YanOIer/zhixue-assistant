@@ -5,6 +5,7 @@
 
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import os
 import shutil
 import sys
@@ -59,7 +60,11 @@ async def startup():
     """服务启动时初始化"""
     init_db()
     init_classifier()
-    print("服务启动完成")
+    # Mount uploads directory for file preview
+    uploads_path = os.path.join(os.path.dirname(__file__), '..', UPLOAD_DIR)
+    if os.path.exists(uploads_path):
+        app.mount("/uploads", StaticFiles(directory=uploads_path), name="uploads")
+    print("Server started successfully")
 
 # ============ 文件相关接口 ============
 
@@ -112,11 +117,10 @@ async def upload_file(file: UploadFile = File(...)):
         if rag_system and file_type in ['pdf', 'txt']:
             try:
                 # 提取文本并添加到RAG
-                if file_type == 'txt':
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        text = f.read()
+                text = process_document(file_path)
+                if text:
                     rag_system.add_document(text, file.filename)
-                # PDF处理需要额外库，暂时跳过
+                    print(f"文档 '{file.filename}' 已添加到RAG系统")
             except Exception as e:
                 print(f"处理文档内容失败: {e}")
         

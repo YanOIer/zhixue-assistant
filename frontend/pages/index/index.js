@@ -113,5 +113,11 @@ Page({
   // 跳转到历史记录
   goToHistory() {
     wx.navigateTo({ url: '/pages/history/history' })
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.loadRecentFiles()
+    wx.stopPullDownRefresh()
   }
 })

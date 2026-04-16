@@ -11,6 +11,30 @@
   margin-bottom: 20rpx;
 }
 
+/* 上传区域 */
+.upload-section {
+  margin-bottom: 20rpx;
+}
+
+.upload-btn-small {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 40rpx;
+  padding: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.upload-icon-small {
+  font-size: 40rpx;
+  margin-right: 10rpx;
+}
+
+.upload-text-small {
+  font-size: 28rpx;
+}
+
 .search-input {
   font-size: 28rpx;
 }

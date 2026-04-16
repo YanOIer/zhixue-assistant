@@ -69,13 +69,16 @@ Page({
         wx.hideLoading()
         try {
           const data = JSON.parse(res.data)
+          console.log('Upload response:', data)
           if (data.success) {
-            wx.showToast({ title: '上传成功', icon: 'success' })
+            const category = data.data.category || '未分类'
+            wx.showToast({ title: `上传成功！分类：${category}`, icon: 'success', duration: 2000 })
             this.loadRecentFiles()
           } else {
             wx.showToast({ title: data.message || '上传失败', icon: 'none' })
           }
         } catch (e) {
+          console.error('Parse error:', e, res.data)
           wx.showToast({ title: '上传失败', icon: 'none' })
         }
       },
@@ -91,11 +94,18 @@ Page({
     wx.request({
       url: app.globalData.apiBaseUrl + '/api/files',
       success: (res) => {
+        console.log('Files loaded:', res.data)
         if (res.data.success) {
           this.setData({
             recentFiles: res.data.data.slice(0, 5)
           })
+          console.log('Recent files updated:', res.data.data.slice(0, 5))
+        } else {
+          console.error('Failed to load files:', res.data.message)
         }
+      },
+      fail: (err) => {
+        console.error('Request failed:', err)
       }
     })
   },

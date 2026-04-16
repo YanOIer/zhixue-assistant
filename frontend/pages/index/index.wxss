@@ -132,6 +132,19 @@
   display: block;
 }
 
+/* 空文件提示 */
+.empty-files {
+  text-align: center;
+  padding: 40rpx;
+  background: white;
+  border-radius: 16rpx;
+}
+
+.empty-files .empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
 /* 功能介绍 */
 .feature-section {
   margin: 40rpx 0;

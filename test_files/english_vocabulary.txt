@@ -1,0 +1,42 @@
+英语词汇学习手册
+
+Unit 1: 学术词汇
+
+1. analyze /ˈænəlaɪz/ v. 分析
+   例句：We need to analyze the data carefully.
+
+2. demonstrate /ˈdemənstreɪt/ v. 证明，展示
+   例句：The experiment demonstrates the theory.
+
+3. establish /ɪˈstæblɪʃ/ v. 建立，确立
+   例句：The company was established in 1990.
+
+4. significant /sɪɡˈnɪfɪkənt/ adj. 重要的，显著的
+   例句：There is a significant difference between the two.
+
+Unit 2: 科技词汇
+
+1. algorithm /ˈælɡərɪðəm/ n. 算法
+   例句：This algorithm can solve the problem efficiently.
+
+2. artificial /ˌɑːrtɪˈfɪʃl/ adj. 人工的
+   例句：Artificial intelligence is changing our life.
+
+3. innovation /ˌɪnəˈveɪʃn/ n. 创新
+   例句：Technological innovation drives economic growth.
+
+4. automatic /ˌɔːtəˈmætɪk/ adj. 自动的
+   例句：The system works in automatic mode.
+
+Unit 3: 阅读理解技巧
+
+1. 略读 (Skimming)：快速浏览文章获取大意
+2. 寻读 (Scanning)：查找特定信息
+3. 精读 (Intensive Reading)：深入理解细节
+4. 推断 (Inference)：根据上下文推断含义
+
+常见题型：
+- 主旨大意题
+- 细节理解题
+- 词义猜测题
+- 推理判断题

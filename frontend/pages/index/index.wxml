@@ -61,16 +61,19 @@
     </view>
   </view>
 
-  <view class="recent-section" wx:if="{{recentFiles.length > 0}}">
+  <view class="recent-section">
     <text class="section-title">最近上传</text>
-    <view class="file-list">
+    <view class="file-list" wx:if="{{recentFiles.length > 0}}">
       <view class="file-item" wx:for="{{recentFiles}}" wx:key="id">
         <text class="file-icon">📄</text>
         <view class="file-info">
           <text class="file-name">{{item.name}}</text>
-          <text class="file-time">{{item.time}}</text>
+          <text class="file-time">{{item.category}} · {{item.time}}</text>
         </view>
       </view>
+    </view>
+    <view class="empty-files" wx:if="{{recentFiles.length === 0}}">
+      <text class="empty-text">暂无上传记录</text>
     </view>
   </view>
 

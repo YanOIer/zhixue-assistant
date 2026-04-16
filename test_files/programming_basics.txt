@@ -1,0 +1,77 @@
+Python编程入门教程
+
+第一章：Python简介
+
+Python是一种高级编程语言，由Guido van Rossum于1991年创建。它以简洁、易读的语法著称，适合初学者学习。
+
+Python的特点：
+1. 语法简洁明了，接近自然语言
+2. 拥有丰富的标准库和第三方库
+3. 跨平台，支持Windows、Mac、Linux
+4. 应用广泛：Web开发、数据分析、人工智能等
+
+第二章：基础语法
+
+变量和数据类型：
+- 整数：x = 10
+- 浮点数：y = 3.14
+- 字符串：name = "Python"
+- 列表：fruits = ["apple", "banana"]
+- 字典：person = {"name": "Tom", "age": 20}
+
+条件语句：
+if age >= 18:
+    print("成年人")
+elif age >= 12:
+    print("青少年")
+else:
+    print("儿童")
+
+循环语句：
+for i in range(5):
+    print(i)
+
+while count < 10:
+    count += 1
+
+第三章：函数
+
+定义函数：
+def greet(name):
+    return f"Hello, {name}!"
+
+调用函数：
+message = greet("World")
+print(message)  # 输出: Hello, World!
+
+Lambda表达式：
+square = lambda x: x ** 2
+print(square(5))  # 输出: 25
+
+第四章：面向对象编程
+
+类和对象：
+class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def get_grade(self):
+        if self.score >= 90:
+            return "A"
+        elif self.score >= 80:
+            return "B"
+        else:
+            return "C"
+
+创建对象：
+student = Student("Alice", 95)
+print(student.get_grade())  # 输出: A
+
+第五章：常用库
+
+1. NumPy：数值计算
+2. Pandas：数据处理
+3. Matplotlib：数据可视化
+4. Flask/Django：Web开发
+5. TensorFlow/PyTorch：机器学习

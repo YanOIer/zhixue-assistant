@@ -72,8 +72,18 @@ Page({
           console.log('Upload response:', data)
           if (data.success) {
             const category = data.data.category || '未分类'
-            wx.showToast({ title: `上传成功！分类：${category}`, icon: 'success', duration: 2000 })
-            this.loadRecentFiles()
+            const confidence = data.data.classification ?
+              Math.round(data.data.classification.confidence * 100) : 0
+
+            // 显示详细的分类结果
+            wx.showModal({
+              title: '上传成功',
+              content: `文件名：${data.data.filename}\n分类：${category}\n置信度：${confidence}%`,
+              showCancel: false,
+              success: () => {
+                this.loadRecentFiles()
+              }
+            })
           } else {
             wx.showToast({ title: data.message || '上传失败', icon: 'none' })
           }

@@ -61,13 +61,15 @@
 }
 
 .file-category {
-  font-size: 22rpx;
-  color: #4A90E2;
-  background: #f0f7ff;
-  padding: 5rpx 15rpx;
-  border-radius: 10rpx;
+  font-size: 24rpx;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
   display: inline-block;
   margin-bottom: 10rpx;
+  font-weight: bold;
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
 }
 
 .file-name {

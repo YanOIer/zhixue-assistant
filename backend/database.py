@@ -24,6 +24,7 @@ def init_db():
             filepath TEXT NOT NULL,
             file_type TEXT,
             file_size INTEGER,
+            category TEXT DEFAULT '其他',
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -43,29 +44,49 @@ def init_db():
     conn.close()
     print("数据库初始化完成")
 
-def add_file(filename, filepath, file_type, file_size):
+def add_file(filename, filepath, file_type, file_size, category='其他'):
     """
     添加文件记录
-    
+
     参数：
         filename: 文件名
         filepath: 文件路径
         file_type: 文件类型
         file_size: 文件大小（字节）
-    
+        category: 文档分类（默认'其他'）
+
     返回：
         新插入记录的ID
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO files (filename, filepath, file_type, file_size)
-        VALUES (?, ?, ?, ?)
-    ''', (filename, filepath, file_type, file_size))
+        INSERT INTO files (filename, filepath, file_type, file_size, category)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (filename, filepath, file_type, file_size, category))
     conn.commit()
     file_id = cursor.lastrowid
     conn.close()
     return file_id
+
+def update_file_category(file_id, category):
+    """
+    更新文件分类
+
+    参数：
+        file_id: 文件ID
+        category: 新分类
+
+    返回：
+        是否更新成功
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('UPDATE files SET category = ? WHERE id = ?', (category, file_id))
+    conn.commit()
+    affected = cursor.rowcount
+    conn.close()
+    return affected > 0
 
 def get_all_files():
     """

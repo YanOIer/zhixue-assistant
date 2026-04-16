@@ -108,5 +108,10 @@ Page({
   // 跳转到对话页
   goToChat() {
     wx.switchTab({ url: '/pages/chat/chat' })
+  },
+
+  // 跳转到历史记录
+  goToHistory() {
+    wx.navigateTo({ url: '/pages/history/history' })
   }
 })

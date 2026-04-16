@@ -1,17 +1,17 @@
 <view class="container">
   <view class="header">
     <text class="title">智学助手</text>
-    <text class="subtitle">基于AI的智能学习资料管理</text>
+    <text class="subtitle">基于RAG技术的智能学习助手</text>
   </view>
-  
+
   <view class="upload-section">
     <view class="upload-btn" bindtap="chooseFile">
       <text class="upload-icon">+</text>
       <text class="upload-text">上传学习资料</text>
-      <text class="upload-hint">支持 PDF / 图片 / 文字</text>
+      <text class="upload-hint">支持 PDF / TXT / Word</text>
     </view>
   </view>
-  
+
   <view class="quick-actions">
     <view class="action-item" bindtap="goToLibrary">
       <text class="action-icon">📚</text>
@@ -21,8 +21,46 @@
       <text class="action-icon">💬</text>
       <text class="action-text">开始提问</text>
     </view>
+    <view class="action-item" bindtap="goToHistory">
+      <text class="action-icon">📜</text>
+      <text class="action-text">对话历史</text>
+    </view>
   </view>
-  
+
+  <view class="feature-section">
+    <text class="section-title">功能介绍</text>
+    <view class="feature-list">
+      <view class="feature-item">
+        <text class="feature-icon">📄</text>
+        <view class="feature-info">
+          <text class="feature-title">文档上传</text>
+          <text class="feature-desc">支持PDF、Word、TXT格式学习资料</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">🤖</text>
+        <view class="feature-info">
+          <text class="feature-title">AI问答</text>
+          <text class="feature-desc">基于上传文档的智能问答，精准回答</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">🔍</text>
+        <view class="feature-info">
+          <text class="feature-title">知识溯源</text>
+          <text class="feature-desc">显示答案来源，可追溯可验证</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">🏷️</text>
+        <view class="feature-info">
+          <text class="feature-title">智能分类</text>
+          <text class="feature-desc">自动识别文档类型（数学/英语/计算机等）</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <view class="recent-section" wx:if="{{recentFiles.length > 0}}">
     <text class="section-title">最近上传</text>
     <view class="file-list">
@@ -34,5 +72,9 @@
         </view>
       </view>
     </view>
+  </view>
+
+  <view class="tech-info">
+    <text class="tech-text">Powered by RAG + DeepSeek AI</text>
   </view>
 </view>

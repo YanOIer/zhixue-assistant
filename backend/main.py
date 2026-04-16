@@ -28,7 +28,7 @@ UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 导入数据库模块
-from database import init_db, add_file, get_all_files, add_chat, get_chat_history, update_file_category
+from database import init_db, add_file, get_all_files, get_file_by_id, delete_file, add_chat, get_chat_history, clear_chat_history
 
 # 导入AI模块
 from document_processor import process_document
@@ -87,13 +87,11 @@ async def upload_file(file: UploadFile = File(...)):
         
         # 获取文件类型
         file_type = file.filename.split('.')[-1].lower()
-        
-        # 保存到数据库
-        file_id = add_file(file.filename, file_path, file_type, file_size)
-        
+
         # 分类结果
         classification_result = None
-        
+        category = '其他'
+
         # 如果有分类器，自动分类文档
         if document_classifier and file_type in ['pdf', 'txt']:
             try:
@@ -102,9 +100,13 @@ async def upload_file(file: UploadFile = File(...)):
                 if text:
                     # 自动分类
                     classification_result = document_classifier.classify(text)
-                    print(f"文档 '{file.filename}' 分类结果: {classification_result['category']}")
+                    category = classification_result['category']
+                    print(f"文档 '{file.filename}' 分类结果: {category}")
             except Exception as e:
                 print(f"文档分类失败: {e}")
+
+        # 保存到数据库
+        file_id = add_file(file.filename, file_path, file_type, file_size, category)
         
         # 如果有RAG系统，处理文档内容
         if rag_system and file_type in ['pdf', 'txt']:
@@ -136,7 +138,7 @@ async def upload_file(file: UploadFile = File(...)):
 async def get_files():
     """
     获取文件列表
-    
+
     返回：
         success: 是否成功
         data: 文件列表
@@ -151,7 +153,8 @@ async def get_files():
                 "path": f[2],
                 "type": f[3],
                 "size": format_size(f[4]),
-                "time": f[5][:10]  # 只返回日期部分
+                "category": f[5] if len(f) > 5 else '其他',
+                "time": f[6][:10] if len(f) > 6 else f[5][:10]  # 只返回日期部分
             })
         return {"success": True, "data": file_list}
     except Exception as e:
@@ -207,7 +210,7 @@ async def chat(question: str = Form(...)):
 async def chat_history():
     """
     获取对话历史
-    
+
     返回：
         success: 是否成功
         data: 对话历史列表
@@ -226,6 +229,49 @@ async def chat_history():
         return {"success": True, "data": history}
     except Exception as e:
         return {"success": False, "message": str(e)}
+
+@app.delete("/api/chat/history")
+async def clear_history():
+    """
+    清空对话历史
+
+    返回：
+        success: 是否成功
+    """
+    try:
+        clear_chat_history()
+        return {"success": True, "message": "历史记录已清空"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+@app.delete("/api/files/{file_id}")
+async def delete_file_endpoint(file_id: int):
+    """
+    删除文件
+
+    参数：
+        file_id: 文件ID
+
+    返回：
+        success: 是否成功
+    """
+    try:
+        # 获取文件信息
+        file = get_file_by_id(file_id)
+        if not file:
+            return {"success": False, "message": "文件不存在"}
+
+        # 删除物理文件
+        file_path = file[2]
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        # 删除数据库记录
+        delete_file(file_id)
+
+        return {"success": True, "message": "删除成功"}
+    except Exception as e:
+        return {"success": False, "message": f"删除失败: {str(e)}"}
 
 # ============ 测试接口 ============
 

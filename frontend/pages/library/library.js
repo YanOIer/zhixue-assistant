@@ -52,7 +52,62 @@ Page({
   // 查看文件详情
   viewFile(e) {
     const id = e.currentTarget.dataset.id
-    wx.showToast({ title: '查看文件: ' + id, icon: 'none' })
-    // 后续可以添加文件详情页
+    const file = this.data.files.find(f => f.id === id)
+    if (!file) return
+
+    wx.showActionSheet({
+      itemList: ['查看详情', '删除文件'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          // 查看详情
+          wx.showModal({
+            title: '文件详情',
+            content: `文件名: ${file.name}\n类型: ${file.type}\n大小: ${file.size}\n上传时间: ${file.time}`,
+            showCancel: false
+          })
+        } else if (res.tapIndex === 1) {
+          // 删除文件
+          this.deleteFile(id)
+        }
+      }
+    })
+  },
+
+  // 删除文件
+  deleteFile(fileId) {
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这个文件吗？删除后无法恢复。',
+      confirmColor: '#ff4444',
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' })
+
+          wx.request({
+            url: app.globalData.apiBaseUrl + '/api/files/' + fileId,
+            method: 'DELETE',
+            success: (res) => {
+              wx.hideLoading()
+              if (res.data.success) {
+                wx.showToast({ title: '删除成功', icon: 'success' })
+                this.loadFiles()
+              } else {
+                wx.showToast({ title: res.data.message || '删除失败', icon: 'none' })
+              }
+            },
+            fail: () => {
+              wx.hideLoading()
+              wx.showToast({ title: '删除失败', icon: 'none' })
+            }
+          })
+        }
+      }
+    })
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.loadFiles()
+    wx.stopPullDownRefresh()
   }
 })

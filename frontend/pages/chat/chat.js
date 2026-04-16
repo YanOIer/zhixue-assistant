@@ -15,6 +15,14 @@ Page({
     scrollToView: ''
   },
 
+  onLoad() {
+    // 检查是否有待处理的问题（从历史记录页面跳转）
+    if (app.globalData.pendingQuestion) {
+      this.setData({ inputValue: app.globalData.pendingQuestion })
+      app.globalData.pendingQuestion = null
+    }
+  },
+
   onInput(e) {
     this.setData({ inputValue: e.detail.value })
   },

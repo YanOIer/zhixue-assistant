@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "资料库"
+  "navigationBarTitleText": "资料库",
+  "enablePullDownRefresh": true
 }

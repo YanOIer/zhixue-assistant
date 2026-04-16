@@ -33,6 +33,17 @@
 .file-icon {
   font-size: 80rpx;
   display: block;
+  margin-bottom: 10rpx;
+}
+
+.file-category {
+  font-size: 22rpx;
+  color: #4A90E2;
+  background: #f0f7ff;
+  padding: 5rpx 15rpx;
+  border-radius: 10rpx;
+  display: inline-block;
+  margin-bottom: 10rpx;
 }
 
 .file-name {

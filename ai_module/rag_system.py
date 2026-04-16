@@ -215,7 +215,7 @@ class RAGSystem:
         )
         self.dimension = self.embedding_model.get_sentence_embedding_dimension()
         print(f"      向量维度: {self.dimension}")
-        print(f"      模型加载完成 ✓")
+        print(f"      Model loaded")
         
         # ---------- 第2步：加载重排序模型 ----------
         self.use_reranker = use_reranker
@@ -233,7 +233,7 @@ class RAGSystem:
                 max_length=512,  # 限制输入长度，省内存
                 cache_folder=DEFAULT_CACHE_DIR
             )
-            print(f"      模型加载完成 ✓")
+            print(f"      Model loaded")
         else:
             print(f"\n[2/3] 跳过重排序（已禁用）")
         
@@ -321,7 +321,7 @@ class RAGSystem:
             "text_length": len(text)
         }
         
-        print(f"  ✓ 文档处理完成")
+        print(f"  Document processed")
     
     def _split_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
         """

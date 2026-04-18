@@ -16,7 +16,14 @@ Page({
   },
 
   onLoad() {
-    // 检查是否有待处理的问题（从历史记录页面跳转）
+    this.consumePendingQuestion()
+  },
+
+  onShow() {
+    this.consumePendingQuestion()
+  },
+
+  consumePendingQuestion() {
     if (app.globalData.pendingQuestion) {
       this.setData({ inputValue: app.globalData.pendingQuestion })
       app.globalData.pendingQuestion = null
@@ -48,8 +55,8 @@ Page({
     })
 
     // 调用后端API
-    wx.request({
-      url: app.globalData.apiBaseUrl + '/api/chat',
+    app.request({
+      url: '/api/chat',
       method: 'POST',
       header: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -57,10 +64,11 @@ Page({
       data: { question: content },
       success: (res) => {
         if (res.data.success) {
+          const suffix = res.data.mode === 'rag' ? '\n\n[回答模式] RAG 检索增强' : '\n\n[回答模式] 本地知识库检索'
           const aiMsg = {
             id: Date.now() + 1,
             type: 'ai',
-            content: res.data.answer,
+            content: res.data.answer + suffix,
             sources: res.data.sources || []
           }
           this.setData({

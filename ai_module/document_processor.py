@@ -1,10 +1,9 @@
-"""
-文档处理模块
-支持PDF、图片、文本文件的文本提取
-"""
+"""文档处理模块。"""
 
 import os
 import re
+import zipfile
+from xml.etree import ElementTree
 
 def extract_text_from_txt(file_path):
     """
@@ -33,6 +32,35 @@ def extract_text_from_txt(file_path):
             
     except Exception as e:
         print(f"读取文本文件失败: {e}")
+        return ""
+
+
+def extract_text_from_docx(file_path):
+    """
+    从 DOCX 文件提取文本。
+
+    使用 zip/xml 方式解析，避免额外依赖。
+    """
+    try:
+        with zipfile.ZipFile(file_path) as archive:
+            xml_bytes = archive.read('word/document.xml')
+        root = ElementTree.fromstring(xml_bytes)
+        namespaces = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+        paragraphs = []
+        for paragraph in root.findall('.//w:p', namespaces):
+            texts = [node.text for node in paragraph.findall('.//w:t', namespaces) if node.text]
+            joined = ''.join(texts).strip()
+            if joined:
+                paragraphs.append(joined)
+        return '\n'.join(paragraphs)
+    except KeyError:
+        print("DOCX 内容不完整，缺少 word/document.xml")
+        return ""
+    except zipfile.BadZipFile:
+        print("DOCX 文件损坏或格式不正确")
+        return ""
+    except Exception as e:
+        print(f"读取 DOCX 失败: {e}")
         return ""
 
 def extract_text_from_pdf(file_path):
@@ -127,10 +155,12 @@ def process_document(file_path):
     print(f"处理文件: {file_path}")
     print(f"文件类型: {ext}")
     
-    if ext == '.txt':
+    if ext in ['.txt', '.md']:
         return extract_text_from_txt(file_path)
     elif ext == '.pdf':
         return extract_text_from_pdf(file_path)
+    elif ext == '.docx':
+        return extract_text_from_docx(file_path)
     elif ext in ['.jpg', '.jpeg', '.png', '.bmp', '.gif']:
         return extract_text_from_image(file_path)
     else:

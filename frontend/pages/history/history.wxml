@@ -11,7 +11,7 @@
         <text class="history-time">{{item.time}}</text>
       </view>
       <view class="history-answer">
-        <text class="answer-text">{{item.answer.substring(0, 100)}}{{item.answer.length > 100 ? '...' : ''}}</text>
+        <text class="answer-text">{{item.answerPreview}}</text>
       </view>
       <view class="history-footer">
         <text class="continue-btn" catchtap="continueChat" data-question="{{item.question}}">继续对话 ></text>

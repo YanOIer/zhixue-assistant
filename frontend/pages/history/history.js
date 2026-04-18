@@ -18,8 +18,8 @@ Page({
   loadHistory() {
     this.setData({ isLoading: true })
 
-    wx.request({
-      url: app.globalData.apiBaseUrl + '/api/chat/history',
+    app.request({
+      url: '/api/chat/history',
       success: (res) => {
         if (res.data.success) {
           this.setData({
@@ -68,8 +68,8 @@ Page({
         if (res.confirm) {
           wx.showLoading({ title: '清空中...' })
 
-          wx.request({
-            url: app.globalData.apiBaseUrl + '/api/chat/history',
+          app.request({
+            url: '/api/chat/history',
             method: 'DELETE',
             success: (res) => {
               wx.hideLoading()

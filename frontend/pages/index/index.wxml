@@ -4,11 +4,16 @@
     <text class="subtitle">基于RAG技术的智能学习助手</text>
   </view>
 
+  <view class="status-banner {{backendReady ? 'status-ok' : 'status-offline'}}">
+    <text class="status-label">后端状态</text>
+    <text class="status-value">{{backendMode}}</text>
+  </view>
+
   <view class="upload-section">
     <view class="upload-btn" bindtap="chooseFile">
       <text class="upload-icon">+</text>
       <text class="upload-text">上传学习资料</text>
-      <text class="upload-hint">支持 PDF / TXT / Word</text>
+      <text class="upload-hint">支持 PDF / TXT / DOCX / 图片</text>
     </view>
   </view>
 

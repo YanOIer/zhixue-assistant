@@ -1,13 +1,16 @@
-"""
-智学助手 - 后端测试脚本
-"""
-
-import sys
 import os
+import sys
+from pathlib import Path
+import uuid
 
 # 添加模块路径
-sys.path.append(os.path.join(os.path.dirname(__file__), 'ai_module'))
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+PROJECT_ROOT = Path(__file__).resolve().parent
+sys.path.append(str(PROJECT_ROOT / 'ai_module'))
+sys.path.append(str(PROJECT_ROOT / 'backend'))
+
+TEST_DIR = PROJECT_ROOT / '.tmp_tests'
+TEST_DIR.mkdir(exist_ok=True)
+os.environ['ZHIXUE_DB_PATH'] = str(TEST_DIR / f'test-{uuid.uuid4().hex}.db')
 
 def test_database():
     """测试数据库模块"""
@@ -96,12 +99,12 @@ def test_document_processor():
         from document_processor import extract_text_from_txt, clean_text
 
         # 创建测试文件
-        test_file = "test_temp.txt"
+        test_file = TEST_DIR / "test_temp.txt"
         with open(test_file, 'w', encoding='utf-8') as f:
             f.write("这是测试内容。\n机器学习是人工智能的一个重要分支。")
 
         # 测试文本提取
-        text = extract_text_from_txt(test_file)
+        text = extract_text_from_txt(str(test_file))
         assert "机器学习" in text
         print("[OK] 文本提取成功")
 
@@ -110,9 +113,7 @@ def test_document_processor():
         assert cleaned is not None
         print("[OK] 文本清理成功")
 
-        # 删除测试文件
-        os.remove(test_file)
-        print("[OK] 清理测试文件")
+        print("[OK] 测试文件保留在临时目录")
 
         print("\n[PASS] 文档处理器测试通过")
         return True

@@ -2,17 +2,21 @@ const app = getApp()
 
 Page({
   data: {
-    aiInfo: null
+    aiInfo: null,
+    apiBaseUrl: ''
   },
 
   onLoad() {
+    this.setData({
+      apiBaseUrl: app.globalData.apiBaseUrl
+    })
     this.loadAIInfo()
   },
 
   // 加载AI系统信息
   loadAIInfo() {
-    wx.request({
-      url: app.globalData.apiBaseUrl + '/api/ai/info',
+    app.request({
+      url: '/api/ai/info',
       success: (res) => {
         if (res.data.success) {
           this.setData({ aiInfo: res.data.data })
@@ -45,8 +49,8 @@ Page({
         if (res.confirm) {
           wx.showLoading({ title: '清空中...' })
 
-          wx.request({
-            url: app.globalData.apiBaseUrl + '/api/chat/history',
+          app.request({
+            url: '/api/chat/history',
             method: 'DELETE',
             success: (res) => {
               wx.hideLoading()
@@ -61,6 +65,23 @@ Page({
               wx.showToast({ title: '清空失败', icon: 'none' })
             }
           })
+        }
+      }
+    })
+  },
+
+  configureApi() {
+    wx.showModal({
+      title: '设置后端地址',
+      editable: true,
+      placeholderText: '例如：http://127.0.0.1:8000',
+      content: this.data.apiBaseUrl,
+      success: (res) => {
+        if (res.confirm && res.content) {
+          app.setApiBaseUrl(res.content)
+          this.setData({ apiBaseUrl: app.globalData.apiBaseUrl })
+          wx.showToast({ title: '保存成功', icon: 'success' })
+          this.loadAIInfo()
         }
       }
     })
@@ -83,7 +104,7 @@ Page({
     }
 
     const info = this.data.aiInfo
-    const ragStatus = info.rag_system.status === 'ready' ? '✅ 已就绪' : '⏳ 未初始化'
+    const ragStatus = info.rag_system.status === 'ready' ? '✅ 已就绪' : '🧪 演示模式'
     const classifierStatus = info.document_classifier.status === 'ready' ? '✅ 已就绪' : '⏳ 未初始化'
 
     const content = `RAG系统: ${ragStatus}

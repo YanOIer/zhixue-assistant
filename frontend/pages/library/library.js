@@ -17,8 +17,8 @@ Page({
 
   // 加载文件列表
   loadFiles() {
-    wx.request({
-      url: app.globalData.apiBaseUrl + '/api/files',
+    app.request({
+      url: '/api/files',
       success: (res) => {
         if (res.data.success) {
           this.setData({
@@ -78,8 +78,15 @@ Page({
 
   // 预览文件
   previewFile(file) {
+    if (['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(file.type)) {
+      wx.previewImage({
+        urls: [`${app.globalData.apiBaseUrl}${file.url}`]
+      })
+      return
+    }
+
     // 构建文件URL
-    const fileUrl = `${app.globalData.apiBaseUrl}/uploads/${file.name}`
+    const fileUrl = `${app.globalData.apiBaseUrl}${file.url}`
 
     // 下载并预览
     wx.downloadFile({
@@ -118,8 +125,8 @@ Page({
         if (res.confirm) {
           wx.showLoading({ title: '删除中...' })
 
-          wx.request({
-            url: app.globalData.apiBaseUrl + '/api/files/' + fileId,
+          app.request({
+            url: '/api/files/' + fileId,
             method: 'DELETE',
             success: (res) => {
               wx.hideLoading()

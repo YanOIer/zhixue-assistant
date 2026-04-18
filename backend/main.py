@@ -1,21 +1,47 @@
-"""
-智学助手 - 后端API服务
-使用FastAPI框架
-"""
+"""智学助手后端 API。"""
 
-from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from collections import Counter
+import json
 import os
+from pathlib import Path
+import re
 import shutil
 import sys
+import uuid
 
-# 添加AI模块路径
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'ai_module'))
+from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="智学助手API", version="1.0.0")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+AI_MODULE_PATH = PROJECT_ROOT / 'ai_module'
+if str(AI_MODULE_PATH) not in sys.path:
+    sys.path.append(str(AI_MODULE_PATH))
 
-# 允许跨域（小程序需要）
+from database import (  # noqa: E402
+    add_chat,
+    add_file,
+    clear_chat_history,
+    delete_file,
+    get_all_file_contents,
+    get_all_files,
+    get_chat_history,
+    get_file_by_id,
+    init_db,
+    save_file_content,
+)
+from document_classifier import DocumentClassifier  # noqa: E402
+from document_processor import process_document  # noqa: E402
+
+APP_VERSION = "1.1.0"
+UPLOAD_DIR = PROJECT_ROOT / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
+SUPPORTED_TEXT_TYPES = {'pdf', 'txt', 'docx', 'md'}
+SUPPORTED_IMAGE_TYPES = {'jpg', 'jpeg', 'png', 'bmp', 'gif'}
+SUPPORTED_FILE_TYPES = SUPPORTED_TEXT_TYPES | SUPPORTED_IMAGE_TYPES
+
+app = FastAPI(title="智学助手API", version=APP_VERSION)
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,30 +50,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 确保上传文件夹存在
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# 导入数据库模块
-from database import init_db, add_file, get_all_files, get_file_by_id, delete_file, add_chat, get_chat_history, clear_chat_history
-
-# 导入AI模块
-from document_processor import process_document
-from document_classifier import DocumentClassifier
-
-# 全局RAG系统实例（由组长初始化）
 rag_system = None
-
-# 全局文档分类器实例
 document_classifier = None
 
+
 def set_rag_system(rag):
-    """设置RAG系统实例"""
+    """设置 RAG 系统实例。"""
     global rag_system
     rag_system = rag
 
+
 def init_classifier():
-    """初始化文档分类器"""
+    """初始化文档分类器。"""
     global document_classifier
     if document_classifier is None:
         print("初始化文档分类器...")
@@ -55,257 +69,329 @@ def init_classifier():
         document_classifier.train()
         print("文档分类器初始化完成")
 
+
+def format_size(size):
+    """格式化文件大小。"""
+    if size < 1024:
+        return f"{size}B"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.1f}KB"
+    return f"{size / (1024 * 1024):.1f}MB"
+
+
+def extract_preview(text, limit=180):
+    """生成简短预览文本。"""
+    cleaned = ' '.join((text or '').split())
+    return cleaned[:limit]
+
+
+def build_unique_filename(filename):
+    """为上传文件生成唯一文件名，避免重名覆盖。"""
+    safe_name = Path(filename or '').name
+    if not safe_name:
+        safe_name = f"upload-{uuid.uuid4().hex[:8]}.txt"
+
+    stem = Path(safe_name).stem[:50] or 'upload'
+    suffix = Path(safe_name).suffix.lower()
+    if suffix == '.doc':
+        suffix = '.doc'
+    return f"{stem}-{uuid.uuid4().hex[:8]}{suffix}"
+
+
+def infer_text_answer(question):
+    """基于缓存文档内容做本地关键词检索，保证演示可用。"""
+    records = get_all_file_contents()
+    if not records:
+        return {
+            "answer": "当前知识库为空。请先上传 PDF、TXT、DOCX 或图片资料，再进行提问。",
+            "sources": [],
+            "context": [],
+            "mode": "empty",
+        }
+
+    chinese_terms = re.findall(r'[\u4e00-\u9fff]{2,}', question)
+    english_terms = re.findall(r'[a-zA-Z0-9]+', question.lower())
+    query_terms = []
+    for phrase in chinese_terms:
+        query_terms.append(phrase)
+        cleaned_phrase = phrase.replace('什么是', '').replace('请解释', '').replace('一下', '')
+        if cleaned_phrase and cleaned_phrase != phrase:
+            query_terms.append(cleaned_phrase)
+        for size in range(2, min(5, len(cleaned_phrase) + 1)):
+            for start in range(0, len(cleaned_phrase) - size + 1):
+                query_terms.append(cleaned_phrase[start:start + size])
+    query_terms.extend(english_terms)
+    query_terms = [term for term in dict.fromkeys(query_terms) if term]
+    candidates = []
+
+    for file_id, filename, category, created_at, content, preview in records:
+        text = (content or preview or '').strip()
+        if not text:
+            continue
+
+        sample = ' '.join(text.split())
+        score = 0
+        for term in query_terms:
+            score += sample.lower().count(term)
+
+        if not query_terms:
+            score = 1
+
+        if score > 0:
+            excerpt_start = 0
+            if query_terms:
+                positions = [sample.lower().find(term) for term in query_terms if sample.lower().find(term) >= 0]
+                if positions:
+                    excerpt_start = max(positions[0] - 40, 0)
+            excerpt = sample[excerpt_start:excerpt_start + 180]
+            candidates.append({
+                "id": file_id,
+                "filename": filename,
+                "category": category,
+                "score": score,
+                "excerpt": excerpt or preview or sample[:180],
+            })
+
+    if not candidates:
+        latest = records[0]
+        return {
+            "answer": (
+                f"已检索到知识库中的资料，但没有找到与“{question}”高度匹配的内容。"
+                f"你可以换个更具体的问法，或先上传更相关的资料。"
+            ),
+            "sources": [latest[1]],
+            "context": [latest[5] or extract_preview(latest[4] or '')],
+            "mode": "fallback_no_match",
+        }
+
+    top_candidates = sorted(candidates, key=lambda item: item["score"], reverse=True)[:3]
+    category_counter = Counter(item["category"] or '其他' for item in top_candidates)
+    dominant_category = category_counter.most_common(1)[0][0]
+    answer_lines = [
+        f"根据本地知识库检索，问题更接近“{dominant_category}”资料。",
+        "匹配到的关键信息如下：",
+    ]
+    for index, item in enumerate(top_candidates, start=1):
+        answer_lines.append(f"{index}. {item['excerpt']}")
+
+    return {
+        "answer": '\n'.join(answer_lines),
+        "sources": [item["filename"] for item in top_candidates],
+        "context": [item["excerpt"] for item in top_candidates],
+        "mode": "local_retrieval",
+    }
+
+
+def serialize_history_sources(raw_sources):
+    try:
+        return json.loads(raw_sources) if raw_sources else []
+    except json.JSONDecodeError:
+        return raw_sources or []
+
+
 @app.on_event("startup")
 async def startup():
-    """服务启动时初始化"""
     init_db()
     init_classifier()
-    # Mount uploads directory for file preview
-    uploads_path = os.path.join(os.path.dirname(__file__), '..', UPLOAD_DIR)
-    if os.path.exists(uploads_path):
-        app.mount("/uploads", StaticFiles(directory=uploads_path), name="uploads")
     print("Server started successfully")
 
-# ============ 文件相关接口 ============
 
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):
-    """
-    上传文件接口
-    
-    参数：
-        file: 上传的文件
-    
-    返回：
-        success: 是否成功
-        message: 提示信息
-        data: 文件信息（包含自动分类结果）
-    """
-    try:
-        # 保存文件
-        file_path = os.path.join(UPLOAD_DIR, file.filename)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        # 获取文件大小
-        file_size = os.path.getsize(file_path)
-        
-        # 获取文件类型
-        file_type = file.filename.split('.')[-1].lower()
+    """上传资料并写入知识库。"""
+    original_name = file.filename or "未命名文件"
+    extension = Path(original_name).suffix.lower().lstrip('.')
 
-        # 分类结果
+    if extension not in SUPPORTED_FILE_TYPES and extension != 'doc':
+        return {
+            "success": False,
+            "message": "仅支持 PDF、TXT、DOCX、Markdown 和常见图片格式。",
+        }
+
+    if extension == 'doc':
+        return {
+            "success": False,
+            "message": "暂不支持老式 DOC 文件，请另存为 DOCX 后上传。",
+        }
+
+    saved_name = build_unique_filename(original_name)
+    saved_path = UPLOAD_DIR / saved_name
+
+    try:
+        with saved_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        file_size = saved_path.stat().st_size
+        text = process_document(str(saved_path)) if extension in SUPPORTED_FILE_TYPES else ""
+        preview = extract_preview(text)
+
         classification_result = None
         category = '其他'
-
-        # 如果有分类器，自动分类文档
-        if document_classifier and file_type in ['pdf', 'txt']:
+        if document_classifier and text:
             try:
-                # 提取文本
-                text = process_document(file_path)
-                if text:
-                    # 自动分类
-                    classification_result = document_classifier.classify(text)
-                    category = classification_result['category']
-                    print(f"文档 '{file.filename}' 分类结果: {category}")
-            except Exception as e:
-                print(f"文档分类失败: {e}")
+                classification_result = document_classifier.classify(text)
+                category = classification_result['category']
+            except Exception as exc:
+                print(f"文档分类失败: {exc}")
 
-        # 保存到数据库
-        file_id = add_file(file.filename, file_path, file_type, file_size, category)
-        
-        # 如果有RAG系统，处理文档内容
-        if rag_system and file_type in ['pdf', 'txt']:
+        file_id = add_file(original_name, str(saved_path), extension, file_size, category)
+        save_file_content(file_id, text, preview)
+
+        if rag_system and text:
             try:
-                # 提取文本并添加到RAG
-                text = process_document(file_path)
-                if text:
-                    rag_system.add_document(text, file.filename)
-                    print(f"文档 '{file.filename}' 已添加到RAG系统")
-            except Exception as e:
-                print(f"处理文档内容失败: {e}")
-        
+                rag_system.add_document(text, original_name)
+                print(f"文档 '{original_name}' 已添加到 RAG 系统")
+            except Exception as exc:
+                print(f"处理文档内容失败: {exc}")
+
         return {
             "success": True,
             "message": "上传成功",
             "data": {
                 "id": file_id,
-                "filename": file.filename,
+                "filename": original_name,
+                "savedName": saved_name,
                 "size": format_size(file_size),
-                "category": classification_result['category'] if classification_result else None,
-                "classification": classification_result
+                "category": category,
+                "classification": classification_result,
+                "preview": preview,
+                "ragIndexed": bool(rag_system and text),
             }
         }
-    except Exception as e:
-        return {"success": False, "message": f"上传失败: {str(e)}"}
+    except Exception as exc:
+        if saved_path.exists():
+            saved_path.unlink(missing_ok=True)
+        return {"success": False, "message": f"上传失败: {exc}"}
+
 
 @app.get("/api/files")
 async def get_files():
-    """
-    获取文件列表
-
-    返回：
-        success: 是否成功
-        data: 文件列表
-    """
+    """获取文件列表。"""
     try:
-        files = get_all_files()
         file_list = []
-        for f in files:
+        for file_row in get_all_files():
+            saved_name = Path(file_row[2]).name
             file_list.append({
-                "id": f[0],
-                "name": f[1],
-                "path": f[2],
-                "type": f[3],
-                "size": format_size(f[4]),
-                "category": f[5] if len(f) > 5 else '其他',
-                "time": f[6][:10] if len(f) > 6 else f[5][:10]  # 只返回日期部分
+                "id": file_row[0],
+                "name": file_row[1],
+                "savedName": saved_name,
+                "path": file_row[2],
+                "type": file_row[3],
+                "size": format_size(file_row[4]),
+                "category": file_row[5] or '其他',
+                "time": (file_row[6] or '')[:19].replace('T', ' '),
+                "url": f"/uploads/{saved_name}",
             })
         return {"success": True, "data": file_list}
-    except Exception as e:
-        return {"success": False, "message": str(e)}
+    except Exception as exc:
+        return {"success": False, "message": str(exc)}
 
-def format_size(size):
-    """格式化文件大小"""
-    if size < 1024:
-        return f"{size}B"
-    elif size < 1024 * 1024:
-        return f"{size/1024:.1f}KB"
-    else:
-        return f"{size/(1024*1024):.1f}MB"
-
-# ============ 问答相关接口 ============
 
 @app.post("/api/chat")
 async def chat(question: str = Form(...)):
-    """
-    问答接口
-    
-    参数：
-        question: 用户问题
-    
-    返回：
-        success: 是否成功
-        answer: AI回答
-        sources: 参考来源
-    """
+    """问答接口。优先使用 RAG，失败时降级为本地检索回答。"""
+    question = question.strip()
+    if not question:
+        return {"success": False, "message": "问题不能为空"}
+
     try:
+        result = None
         if rag_system:
-            # 使用RAG系统生成回答
-            result = rag_system.query(question)
-            answer = result["answer"]
-            sources = result["sources"]
-        else:
-            # RAG系统未初始化，返回模拟回答
-            answer = f"这是关于'{question}'的模拟回答。RAG系统正在初始化中..."
-            sources = []
-        
-        # 保存对话记录
-        add_chat(question, answer, str(sources))
-        
+            try:
+                result = rag_system.query(question)
+                result["mode"] = "rag"
+            except Exception as exc:
+                print(f"RAG 查询失败，已降级到本地检索: {exc}")
+
+        if result is None:
+            result = infer_text_answer(question)
+
+        answer = result["answer"]
+        sources = result.get("sources", [])
+        add_chat(question, answer, json.dumps(sources, ensure_ascii=False))
         return {
             "success": True,
             "answer": answer,
-            "sources": sources
+            "sources": sources,
+            "mode": result.get("mode", "unknown"),
         }
-    except Exception as e:
-        return {"success": False, "message": f"问答失败: {str(e)}"}
+    except Exception as exc:
+        return {"success": False, "message": f"问答失败: {exc}"}
+
 
 @app.get("/api/chat/history")
 async def chat_history():
-    """
-    获取对话历史
-
-    返回：
-        success: 是否成功
-        data: 对话历史列表
-    """
+    """获取对话历史。"""
     try:
-        chats = get_chat_history()
         history = []
-        for c in chats:
+        for row in get_chat_history():
             history.append({
-                "id": c[0],
-                "question": c[1],
-                "answer": c[2],
-                "sources": c[3],
-                "time": c[4]
+                "id": row[0],
+                "question": row[1],
+                "answer": row[2],
+                "sources": serialize_history_sources(row[3]),
+                "time": row[4],
+                "answerPreview": row[2][:100] + ('...' if len(row[2]) > 100 else ''),
             })
         return {"success": True, "data": history}
-    except Exception as e:
-        return {"success": False, "message": str(e)}
+    except Exception as exc:
+        return {"success": False, "message": str(exc)}
+
 
 @app.delete("/api/chat/history")
 async def clear_history():
-    """
-    清空对话历史
-
-    返回：
-        success: 是否成功
-    """
+    """清空历史记录。"""
     try:
         clear_chat_history()
         return {"success": True, "message": "历史记录已清空"}
-    except Exception as e:
-        return {"success": False, "message": str(e)}
+    except Exception as exc:
+        return {"success": False, "message": str(exc)}
+
 
 @app.delete("/api/files/{file_id}")
 async def delete_file_endpoint(file_id: int):
-    """
-    删除文件
-
-    参数：
-        file_id: 文件ID
-
-    返回：
-        success: 是否成功
-    """
+    """删除文件与数据库记录。"""
     try:
-        # 获取文件信息
-        file = get_file_by_id(file_id)
-        if not file:
+        file_row = get_file_by_id(file_id)
+        if not file_row:
             return {"success": False, "message": "文件不存在"}
 
-        # 删除物理文件
-        file_path = file[2]
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        file_path = Path(file_row[2])
+        if file_path.exists():
+            try:
+                file_path.unlink(missing_ok=True)
+            except PermissionError:
+                print(f"无法删除物理文件，已跳过: {file_path}")
 
-        # 删除数据库记录
         delete_file(file_id)
-
         return {"success": True, "message": "删除成功"}
-    except Exception as e:
-        return {"success": False, "message": f"删除失败: {str(e)}"}
+    except Exception as exc:
+        return {"success": False, "message": f"删除失败: {exc}"}
 
-# ============ 测试接口 ============
 
 @app.get("/")
 async def root():
-    """根路径，测试服务是否运行"""
+    """根路径。"""
     return {
         "message": "智学助手API服务运行中",
-        "version": "1.0.0",
-        "rag_ready": rag_system is not None
+        "version": APP_VERSION,
+        "rag_ready": rag_system is not None,
+        "upload_dir": str(UPLOAD_DIR),
     }
+
 
 @app.get("/api/test")
 async def test():
-    """测试接口"""
+    """测试接口。"""
     return {"success": True, "message": "API连接正常"}
 
-# ============ AI系统信息接口 ============
 
 @app.get("/api/ai/info")
 async def ai_info():
-    """
-    获取AI系统信息
-    
-    返回：
-        两种AI方法的状态和配置信息
-    """
+    """获取 AI 系统状态。"""
     info = {
         "rag_system": {
-            "status": "ready" if rag_system else "not_initialized",
+            "status": "ready" if rag_system else "fallback_mode",
             "method": "Retrieval-Augmented Generation (RAG)",
             "type": "深度学习",
             "components": {
@@ -324,38 +410,27 @@ async def ai_info():
             "features": "词袋模型",
             "categories": ["数学", "英语", "政治", "计算机", "其他"],
             "is_trained": document_classifier.is_trained if document_classifier else False
+        },
+        "demo_mode": {
+            "available": True,
+            "description": "当大模型或向量库不可用时，系统会自动降级为本地文档检索回答。"
         }
     }
-    
     return {"success": True, "data": info}
+
 
 @app.post("/api/classify")
 async def classify_document(text: str = Form(...)):
-    """
-    文档分类接口
-    
-    参数：
-        text: 待分类的文档文本
-    
-    返回：
-        分类结果
-    """
+    """文档分类接口。"""
     try:
-        if document_classifier:
-            result = document_classifier.classify(text)
-            return {
-                "success": True,
-                "data": result
-            }
-        else:
-            return {
-                "success": False,
-                "message": "分类器未初始化"
-            }
-    except Exception as e:
-        return {"success": False, "message": f"分类失败: {str(e)}"}
+        if not document_classifier:
+            return {"success": False, "message": "分类器未初始化"}
+        return {"success": True, "data": document_classifier.classify(text)}
+    except Exception as exc:
+        return {"success": False, "message": f"分类失败: {exc}"}
 
-# 启动服务
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -55,8 +55,8 @@ zhixue-assistant/
 ├── test_files/               # 测试资料
 ├── uploads/                  # 上传文件保存目录
 ├── init_rag_data.py          # 初始化 RAG 并加载测试资料
-├── start_server.py           # 完整模式启动脚本
-├── start_simple.py           # 简单模式启动脚本
+├── start_rag.py              # RAG 完整模式启动脚本（加载模型，推荐）
+├── start_simple.py           # 简单模式启动脚本（不加载 RAG，仅调试用）
 ├── test_backend.py           # 后端测试脚本
 ├── requirements.txt          # 项目依赖
 └── README.md
@@ -115,27 +115,23 @@ set ZHIXUE_DB_PATH=D:\path\to\zhixue.db
 
 ### 4. 启动后端
 
-简单模式，不加载 RAG 模型，适合联调和演示本地检索：
+**推荐使用 RAG 完整模式（答辩/演示用）：**
+```bash
+python start_rag.py
+```
+首次启动会加载本地 Embedding 模型（BAAI/bge-small-zh，约 130MB），
+加载完成后自动从数据库恢复知识库向量索引。
+未配置 `DEEPSEEK_API_KEY` 时，RAG 问答自动降级为本地语义检索。
 
+**简单模式（仅前端调试用，不加载 RAG）：**
 ```bash
 python start_simple.py
-```
-
-完整模式，加载向量模型和重排序模型：
-
-```bash
-python start_server.py
 ```
 
 启动后默认访问：
 
 - API: `http://127.0.0.1:8000`
 - Swagger 文档: `http://127.0.0.1:8000/docs`
-
-说明：
-
-- 首次完整启动可能下载本地模型，耗时较长
-- 即使 RAG 初始化失败，服务也会继续启动，并自动切换到演示模式
 
 ### 5. 导入微信小程序前端
 
@@ -165,8 +161,8 @@ python start_server.py
 
 如果你要做课程答辩或现场展示，推荐按下面顺序演示：
 
-1. 启动 `python start_simple.py` 或 `python start_server.py`
-2. 打开首页，先展示系统当前处于 `RAG 模式已就绪` 或 `本地检索演示模式`
+1. 启动 `python start_rag.py`（RAG 完整模式）
+2. 打开首页，先展示「AI系统信息」页面，说明系统架构（Embedding → FAISS → LLM）
 3. 上传一份 `PDF/TXT/DOCX/Markdown` 资料，展示自动分类结果和上传成功提示
 4. 进入资料库，展示文件列表、分类标签、文件预览与删除功能
 5. 进入对话页，围绕刚上传的资料提一个具体问题
@@ -226,7 +222,7 @@ python init_rag_data.py
 
 推荐的本地联调顺序：
 
-1. 先运行 `python start_simple.py`
+1. 先运行 `python start_rag.py`（或 `start_simple.py` 用于快速调试）
 2. 用浏览器访问 `http://127.0.0.1:8000/docs`，确认接口正常
 3. 再打开微信开发者工具导入 `frontend/`
 4. 如果模拟器无法访问后端，在“我的”页面修改 API 地址
@@ -283,7 +279,7 @@ python test_backend.py
 
 ## 常见问题
 
-### 1. 完整模式启动很慢
+### 1. RAG 模式启动很慢
 
 首次下载模型较慢，可尝试设置国内镜像：
 
@@ -317,9 +313,9 @@ set HF_ENDPOINT=https://hf-mirror.com
 
 常见原因：
 
-- 当前是简单模式启动
-- RAG 模型初始化失败
-- 文档没有提取出有效文本
+- 当前是简单模式启动（`start_simple.py`）
+- 知识库为空（需先上传文档）
+- 未上传文档导致 RAG 无法检索相关内容
 
 这时接口返回里通常会显示资料已加入本地知识库，但不会标记为已写入 RAG。
 

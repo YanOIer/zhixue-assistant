@@ -5,8 +5,9 @@ RAG系统与后端集成模块
 由组长完成，组员B只需在main.py中导入使用
 """
 
-import os
-import sys
+import os, sys
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
 # 获取当前文件所在目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +37,7 @@ def get_rag_system():
         # 尝试加载已有索引
         index_path = os.path.join(current_dir, "vector_index")
         if os.path.exists(f"{index_path}.faiss"):
-            _rag_instance.load_index(index_path)
+            _rag_instance.load(index_path)
     
     return _rag_instance
 
@@ -66,7 +67,7 @@ def process_uploaded_file(file_path, filename):
         
         # 保存索引
         index_path = os.path.join(current_dir, "vector_index")
-        rag.save_index(index_path)
+        rag.save(index_path)
         
         return True
         

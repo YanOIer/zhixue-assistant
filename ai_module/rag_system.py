@@ -44,6 +44,10 @@ zhixue-assistant/           # 项目根目录
 格式：models--作者名--模型名/snapshots/版本号/
 """
 
+import sys
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 import numpy as np
 import faiss
 import os
@@ -213,7 +217,7 @@ class RAGSystem:
             device=device,
             cache_folder=DEFAULT_CACHE_DIR
         )
-        self.dimension = self.embedding_model.get_sentence_embedding_dimension()
+        self.dimension = self.embedding_model.get_embedding_dimension()
         print(f"      向量维度: {self.dimension}")
         print(f"      Model loaded")
         

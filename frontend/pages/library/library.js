@@ -55,62 +55,22 @@ Page({
     const file = this.data.files.find(f => f.id === id)
     if (!file) return
 
+    const categoryIcon = { '数学': '📐', '英语': '🔤', '政治': '📜', '计算机': '💻', '其他': '📂' }
+    const icon = categoryIcon[file.category] || '📂'
+
     wx.showActionSheet({
-      itemList: ['查看详情', '预览文件', '删除文件'],
+      itemList: ['📋 查看详情', '🗑️ 删除文件'],
       success: (res) => {
         if (res.tapIndex === 0) {
-          // 查看详情
           wx.showModal({
-            title: '文件详情',
-            content: `文件名: ${file.name}\n类型: ${file.type}\n分类: ${file.category}\n大小: ${file.size}\n上传时间: ${file.time}`,
-            showCancel: false
+            title: `${icon} 文件详情`,
+            content: `📄 文件名：${file.name}\n🗂️ 分类：${file.category}\n📁 格式：${file.type.toUpperCase()}\n📦 大小：${file.size}\n🕐 上传时间：${file.time}`,
+            showCancel: false,
+            confirmText: '知道了'
           })
         } else if (res.tapIndex === 1) {
-          // 预览文件
-          this.previewFile(file)
-        } else if (res.tapIndex === 2) {
-          // 删除文件
           this.deleteFile(id)
         }
-      }
-    })
-  },
-
-  // 预览文件
-  previewFile(file) {
-    if (['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(file.type)) {
-      wx.previewImage({
-        urls: [`${app.globalData.apiBaseUrl}${file.url}`]
-      })
-      return
-    }
-
-    // 构建文件URL
-    const fileUrl = `${app.globalData.apiBaseUrl}${file.url}`
-
-    // 下载并预览
-    wx.downloadFile({
-      url: fileUrl,
-      success: (res) => {
-        if (res.statusCode === 200) {
-          const filePath = res.tempFilePath
-          wx.openDocument({
-            filePath: filePath,
-            fileType: file.type,
-            success: () => {
-              console.log('打开文档成功')
-            },
-            fail: (err) => {
-              wx.showToast({ title: '预览失败', icon: 'none' })
-              console.error('打开文档失败:', err)
-            }
-          })
-        } else {
-          wx.showToast({ title: '下载文件失败', icon: 'none' })
-        }
-      },
-      fail: () => {
-        wx.showToast({ title: '下载文件失败', icon: 'none' })
       }
     })
   },

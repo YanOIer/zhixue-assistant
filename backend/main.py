@@ -7,7 +7,6 @@ from pathlib import Path
 import re
 import shutil
 import sys
-import uuid
 
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -86,16 +85,25 @@ def extract_preview(text, limit=180):
 
 
 def build_unique_filename(filename):
-    """为上传文件生成唯一文件名，避免重名覆盖。"""
-    safe_name = Path(filename or '').name
+    """为上传文件生成唯一文件名，格式：原始名-时间戳短码.扩展名。
+    
+    存储名只用于避免磁盘重名，前端展示始终使用数据库中的 original_name。
+    """
+    import time
+    safe_name = Path(filename or '').name.strip()
     if not safe_name:
-        safe_name = f"upload-{uuid.uuid4().hex[:8]}.txt"
+        safe_name = 'upload.txt'
 
-    stem = Path(safe_name).stem[:50] or 'upload'
-    suffix = Path(safe_name).suffix.lower()
-    if suffix == '.doc':
-        suffix = '.doc'
-    return f"{stem}-{uuid.uuid4().hex[:8]}{suffix}"
+    suffix = Path(safe_name).suffix.lower() or '.bin'
+    stem = Path(safe_name).stem
+
+    # 对中文/特殊字符 stem 做安全处理：保留中文，去除路径危险字符
+    stem = re.sub(r'[\\/:*?"<>|]', '_', stem)
+    stem = stem[:40] or 'upload'
+
+    # 用毫秒时间戳末6位保证唯一
+    ts = str(int(time.time() * 1000))[-6:]
+    return f"{stem}-{ts}{suffix}"
 
 
 def infer_text_answer(question):

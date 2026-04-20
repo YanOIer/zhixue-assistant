@@ -2,26 +2,12 @@ const app = getApp()
 
 Page({
   data: {
-    aiInfo: null,
     apiBaseUrl: ''
   },
 
   onLoad() {
     this.setData({
       apiBaseUrl: app.globalData.apiBaseUrl
-    })
-    this.loadAIInfo()
-  },
-
-  // 加载AI系统信息
-  loadAIInfo() {
-    app.request({
-      url: '/api/ai/info',
-      success: (res) => {
-        if (res.data.success) {
-          this.setData({ aiInfo: res.data.data })
-        }
-      }
     })
   },
 
@@ -96,34 +82,8 @@ Page({
     })
   },
 
-  // 查看AI系统信息
+  // 查看AI系统信息 → 跳转专页
   viewAIInfo() {
-    if (!this.data.aiInfo) {
-      wx.showToast({ title: '信息加载中', icon: 'loading' })
-      return
-    }
-
-    const info = this.data.aiInfo
-    const ragStatus = info.rag_system.status === 'ready' ? '✅ 已就绪' : '🧪 演示模式'
-    const classifierStatus = info.document_classifier.status === 'ready' ? '✅ 已就绪' : '⏳ 未初始化'
-
-    const content = `RAG系统: ${ragStatus}
-文档分类器: ${classifierStatus}
-
-技术详情:
-• Embedding: ${info.rag_system.components.embedding}
-• 检索: ${info.rag_system.components.retrieval}
-• 重排序: ${info.rag_system.components.reranker}
-• LLM: ${info.rag_system.components.llm}
-
-文档分类:
-• 算法: ${info.document_classifier.algorithm}
-• 类别: ${info.document_classifier.categories.join(', ')}`
-
-    wx.showModal({
-      title: 'AI系统信息',
-      content: content,
-      showCancel: false
-    })
+    wx.navigateTo({ url: '/pages/aiinfo/aiinfo' })
   }
 })

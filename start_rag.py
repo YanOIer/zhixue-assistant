@@ -17,6 +17,11 @@ for p in (AI_MODULE, BACKEND):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+# ── 加载配置（设置环境变量）─────────────────────────────────────
+import config  # noqa: E402
+if config.KIMI_API_KEY:
+    print(f"  ✅ KIMI API Key 已配置")
+
 # ── 颜色打印 ──────────────────────────────────────────────────
 def cprint(text, color='green'):
     C = {'green': '\033[92m', 'yellow': '\033[93m', 'red': '\033[91m', 'end': '\033[0m'}
@@ -25,9 +30,10 @@ def cprint(text, color='green'):
 # ── Banner ────────────────────────────────────────────────────
 print("=" * 62)
 print("  🤖 智学助手 · RAG 完整模式")
-print("  Embedding : BAAI/bge-small-zh")
-print("  Reranker  : BAAI/bge-reranker-v2-m3 (CPU模式已禁用，如需启用改为 use_reranker=True)")
-print("  LLM       : DeepSeek Chat (需配置 DEEPSEEK_API_KEY，未配置时自动降级为本地检索)")
+print("  Embedding : BAAI/bge-small-zh (本地语义向量化)")
+print("  向量检索  : FAISS HNSW 索引")
+print("  文档分类  : Naive Bayes 词袋分类器")
+print("  检索模式  : 本地语义检索（无需配置 API Key）")
 print("=" * 62)
 
 # ── 1. 初始化数据库 ────────────────────────────────────────────
@@ -55,8 +61,10 @@ else:
 print("\n[3/4] 从数据库重建知识库（补充索引缺失的文档）...")
 rows = get_all_file_contents()
 loaded_ids = set(rag.documents.keys())
-missing = [(row[0], row[1], row[3]) for row in rows
-           if row[1] and row[1] not in loaded_ids and row[3]]
+# get_all_file_contents() 返回列: id, filename, category, created_at, content, preview
+# row[4] = content（文本内容）
+missing = [(row[0], row[1], row[4]) for row in rows
+           if row[1] and row[1] not in loaded_ids and row[4]]
 
 if not missing:
     cprint("  ✅ 知识库已是最新，无需补充", 'green')
@@ -89,7 +97,7 @@ print(f"  🎉 智学助手 RAG 完整模式已启动！")
 print(f"  版本    : {APP_VERSION}")
 print(f"  API地址  : http://localhost:8000")
 print(f"  API文档  : http://localhost:8000/docs")
-print(f"  DeepSeek : {'✅ 已配置' if os.getenv('DEEPSEEK_API_KEY') else '⚠️ 未配置（使用关键词检索降级）'}")
+print(f"  检索模式  : 本地语义检索（RAG向量检索）")
 print(f"{'=' * 62}")
 print("  按 Ctrl+C 停止服务")
 print(f"{'=' * 62}\n")

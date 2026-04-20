@@ -1,31 +1,39 @@
 <view class="container">
-  <view class="header-actions">
+  <!-- 顶部栏 -->
+  <view class="header-bar">
     <text class="header-title">对话历史</text>
     <text class="clear-btn" bindtap="clearAllHistory" wx:if="{{history.length > 0}}">清空</text>
   </view>
 
+  <!-- 历史列表 -->
   <view class="history-list" wx:if="{{history.length > 0}}">
     <view class="history-item" wx:for="{{history}}" wx:key="id" bindtap="viewDetail" data-item="{{item}}">
       <view class="history-header">
+        <view class="question-tag">问</view>
         <text class="history-question">{{item.question}}</text>
-        <text class="history-time">{{item.time}}</text>
       </view>
       <view class="history-answer">
         <text class="answer-text">{{item.answerPreview}}</text>
       </view>
       <view class="history-footer">
-        <text class="continue-btn" catchtap="continueChat" data-question="{{item.question}}">继续对话 ></text>
+        <text class="history-time">{{item.time}}</text>
+        <text class="continue-btn" catchtap="continueChat" data-question="{{item.question}}">继续 ›</text>
       </view>
     </view>
   </view>
 
+  <!-- 空状态 -->
   <view class="empty-state" wx:if="{{!isLoading && history.length === 0}}">
-    <text class="empty-icon">📝</text>
-    <text class="empty-text">暂无对话历史</text>
-    <text class="empty-hint">在"对话"页面开始提问吧</text>
+    <view class="empty-icon-wrap">
+      <text>📝</text>
+    </view>
+    <text class="empty-title">暂无对话历史</text>
+    <text class="empty-desc">在"对话"页面开始提问吧</text>
   </view>
 
+  <!-- 加载状态 -->
   <view class="loading-state" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
     <text class="loading-text">加载中...</text>
   </view>
 </view>

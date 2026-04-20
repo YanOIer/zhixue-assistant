@@ -1,51 +1,75 @@
 <view class="container">
-  <view class="user-info">
-    <view class="avatar-wrapper">
-      <text class="avatar-emoji">🎓</text>
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-avatar">
+      <text>🎓</text>
     </view>
-    <view class="nickname">
-      <text class="nickname-text">智学助手用户</text>
+    <text class="user-name">智学助手用户</text>
+    <text class="user-desc">探索知识的伙伴</text>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-group">
+      <view class="menu-item" bindtap="configureApi">
+        <view class="menu-left">
+          <view class="menu-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">
+            <text>🌐</text>
+          </view>
+          <view class="menu-info">
+            <text class="menu-title">后端地址</text>
+            <text class="menu-value">{{apiBaseUrl}}</text>
+          </view>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
+
+      <view class="menu-item" bindtap="viewAIInfo">
+        <view class="menu-left">
+          <view class="menu-icon" style="background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%)">
+            <text>🤖</text>
+          </view>
+          <text class="menu-title">AI 系统信息</text>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-item" bindtap="clearHistory">
+        <view class="menu-left">
+          <view class="menu-icon" style="background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%)">
+            <text>📝</text>
+          </view>
+          <text class="menu-title">清空对话历史</text>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
+
+      <view class="menu-item" bindtap="clearCache">
+        <view class="menu-left">
+          <view class="menu-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)">
+            <text>🗑️</text>
+          </view>
+          <text class="menu-title">清除缓存</text>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
+
+      <view class="menu-item" bindtap="about">
+        <view class="menu-left">
+          <view class="menu-icon" style="background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%)">
+            <text>ℹ️</text>
+          </view>
+          <text class="menu-title">关于我们</text>
+        </view>
+        <text class="menu-arrow">›</text>
+      </view>
     </view>
   </view>
 
-  <view class="menu-list">
-    <view class="menu-item" bindtap="configureApi">
-      <text class="menu-icon">🌐</text>
-      <view class="menu-content">
-        <text class="menu-text">后端地址</text>
-        <text class="menu-subtext">{{apiBaseUrl}}</text>
-      </view>
-      <text class="menu-arrow">></text>
-    </view>
-    <view class="menu-item" bindtap="viewAIInfo">
-      <text class="menu-icon">🤖</text>
-      <view class="menu-content">
-        <text class="menu-text">AI系统信息</text>
-      </view>
-      <text class="menu-arrow">></text>
-    </view>
-    <view class="menu-item" bindtap="clearHistory">
-      <text class="menu-icon">📝</text>
-      <view class="menu-content">
-        <text class="menu-text">清空对话历史</text>
-      </view>
-      <text class="menu-arrow">></text>
-    </view>
-    <view class="menu-item" bindtap="clearCache">
-      <text class="menu-icon">🗑️</text>
-      <view class="menu-content">
-        <text class="menu-text">清除缓存</text>
-      </view>
-      <text class="menu-arrow">></text>
-    </view>
-    <view class="menu-item" bindtap="about">
-      <text class="menu-icon">ℹ️</text>
-      <view class="menu-content">
-        <text class="menu-text">关于我们</text>
-      </view>
-      <text class="menu-arrow">></text>
-    </view>
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text class="version-text">智学助手 v1.1.0</text>
   </view>
-
-  <view class="version">版本 1.0.0</view>
 </view>

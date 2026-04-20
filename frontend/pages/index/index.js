@@ -17,21 +17,7 @@ Page({
     this.loadRecentFiles()
   },
 
-  // 选择文件上传
-  chooseFile() {
-    wx.showActionSheet({
-      itemList: ['从聊天记录选择', '从相册选择图片'],
-      success: (res) => {
-        if (res.tapIndex === 0) {
-          this.chooseMessageFile()
-        } else {
-          this.chooseImage()
-        }
-      }
-    })
-  },
-
-  // 从聊天记录选文件
+  // 选择文件上传（直接从聊天记录选择）
   chooseMessageFile() {
     wx.chooseMessageFile({
       count: 1,
@@ -39,20 +25,6 @@ Page({
       extension: ['pdf', 'txt', 'docx', 'md'],
       success: (res) => {
         const file = res.tempFiles[0]
-        this.uploadFile(file)
-      }
-    })
-  },
-
-  // 从相册选图片
-  chooseImage() {
-    wx.chooseImage({
-      count: 1,
-      success: (res) => {
-        const file = {
-          path: res.tempFilePaths[0],
-          name: '图片_' + new Date().getTime() + '.jpg'
-        }
         this.uploadFile(file)
       }
     })

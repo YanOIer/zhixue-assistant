@@ -1,36 +1,49 @@
 <view class="container">
-  <view class="clear-chat-btn" bindtap="clearChat" wx:if="{{messages.length > 1}}">🗑️</view>
+  <!-- 清空按钮 -->
+  <view class="clear-btn" bindtap="clearChat" wx:if="{{messages.length > 1}}">
+    <text>🗑️</text>
+  </view>
 
-  <scroll-view class="chat-container" scroll-y scroll-into-view="{{scrollToView}}" enhanced show-scrollbar>
+  <!-- 消息列表 -->
+  <scroll-view class="chat-scroll" scroll-y scroll-into-view="{{scrollToView}}" enhanced show-scrollbar="false">
     <view class="message-list">
       <view class="message {{item.type}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}" bindlongpress="onMessageLongPress" data-content="{{item.content}}">
-        <view class="avatar">{{item.type === 'user' ? '👤' : '🤖'}}</view>
-        <view class="content">
-          <text class="text" selectable>{{item.content}}</text>
-          <view class="mode-label" wx:if="{{item.modeLabel}}">
-            <text class="mode-text">📌 {{item.modeLabel}}</text>
+        <view class="avatar">
+          <text>{{item.type === 'user' ? '👤' : '🤖'}}</text>
+        </view>
+        <view class="bubble">
+          <text class="msg-text" selectable>{{item.content}}</text>
+          <view class="mode-tag" wx:if="{{item.modeLabel}}">
+            <text>{{item.modeLabel}}</text>
           </view>
           <view class="sources" wx:if="{{item.sources && item.sources.length > 0}}">
-            <text class="sources-title">参考来源：</text>
-            <text class="source-item" wx:for="{{item.sources}}" wx:for-item="source" wx:key="*this">{{source}}</text>
+            <text class="sources-label">参考来源</text>
+            <view class="source-tags">
+              <text class="source-tag" wx:for="{{item.sources}}" wx:for-item="source" wx:key="*this">{{source}}</text>
+            </view>
           </view>
         </view>
       </view>
-      <view class="loading-message" wx:if="{{isLoading}}">
-        <view class="avatar">🤖</view>
-        <view class="content">
+      
+      <!-- 加载动画 -->
+      <view class="message ai" wx:if="{{isLoading}}">
+        <view class="avatar"><text>🤖</text></view>
+        <view class="bubble loading-bubble">
           <view class="loading-dots">
-            <text>.</text><text>.</text><text>.</text>
+            <text class="dot"></text>
+            <text class="dot"></text>
+            <text class="dot"></text>
           </view>
         </view>
       </view>
     </view>
   </scroll-view>
-  
-  <view class="input-area">
-    <input class="message-input" placeholder="输入问题..." value="{{inputValue}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" />
-    <button class="send-btn" bindtap="sendMessage" disabled="{{!inputValue || isLoading}}">
-      发送
+
+  <!-- 输入区域 -->
+  <view class="input-bar">
+    <input class="msg-input" placeholder="输入问题..." value="{{inputValue}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" />
+    <button class="send-btn {{inputValue && !isLoading ? 'active' : ''}}" bindtap="sendMessage" disabled="{{!inputValue || isLoading}}">
+      <text class="send-icon">↑</text>
     </button>
   </view>
 </view>

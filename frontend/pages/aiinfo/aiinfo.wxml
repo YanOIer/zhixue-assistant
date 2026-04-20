@@ -1,193 +1,174 @@
 <scroll-view scroll-y class="page">
 
-  <!-- 加载中 -->
+  <!-- 加载状态 -->
   <view class="loading-wrap" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
     <text class="loading-text">加载中...</text>
   </view>
 
   <block wx:else>
-
-    <!-- 当前运行状态 Banner -->
-    <view class="banner">
-      <text class="banner-title">🤖 智学助手 · 系统架构</text>
+    <!-- 系统状态卡片 -->
+    <view class="status-card">
+      <view class="status-glow"></view>
+      <text class="status-title">🤖 智学助手 · 系统架构</text>
       <view class="run-mode-badge">
-        <text class="run-mode-text">当前：{{runMode}}</text>
+        <text>{{runMode}}</text>
       </view>
       <text class="run-mode-desc">{{runModeDesc}}</text>
     </view>
 
-    <!-- 模块1：文档上传与分类 -->
+    <!-- 模块一：文档分类 -->
     <view class="section">
       <view class="section-header">
-        <text class="section-icon">📂</text>
-        <text class="section-title">模块一：文档上传与分类</text>
+        <view class="section-icon-wrap" style="background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%)">
+          <text>📂</text>
+        </view>
+        <text class="section-title">文档分类模块</text>
       </view>
       <view class="card">
-        <view class="row">
-          <text class="label">支持格式</text>
-          <text class="value">PDF / TXT / DOCX / Markdown / 图片</text>
+        <view class="info-row">
+          <text class="row-label">分类算法</text>
+          <text class="row-value highlight-purple">多项式朴素贝叶斯</text>
         </view>
-        <view class="row">
-          <text class="label">分类算法</text>
-          <text class="value highlight-green">多项式朴素贝叶斯（Naive Bayes）</text>
+        <view class="info-row">
+          <text class="row-label">特征提取</text>
+          <text class="row-value">词袋模型 + TF-IDF</text>
         </view>
-        <view class="row">
-          <text class="label">特征提取</text>
-          <text class="value">词袋模型（Bag of Words）</text>
+        <view class="info-row">
+          <text class="row-label">支持学科</text>
+          <text class="row-value">数学 / 英语 / 政治 / 计算机 / 其他</text>
         </view>
-        <view class="row">
-          <text class="label">分类类别</text>
-          <text class="value">数学 / 英语 / 政治 / 计算机 / 其他</text>
-        </view>
-        <view class="row">
-          <text class="label">分类器状态</text>
-          <text class="value" style="color: {{classifierStatusColor}}">{{classifierStatus}}</text>
+        <view class="info-row">
+          <text class="row-label">运行状态</text>
+          <text class="row-status {{classifierStatus === '✅ 已就绪' ? 'online' : 'offline'}}">{{classifierStatus}}</text>
         </view>
         <view class="tip-box">
-          <text class="tip-text">💡 上传时自动调用分类器，识别文档学科类别，便于组织资料库。</text>
+          <text class="tip-text">上传文档时自动识别学科类别，便于知识管理。</text>
         </view>
       </view>
     </view>
 
-    <!-- 模块2：知识库构建 -->
+    <!-- 模块二：知识库 -->
     <view class="section">
       <view class="section-header">
-        <text class="section-icon">🗄️</text>
-        <text class="section-title">模块二：知识库构建</text>
+        <view class="section-icon-wrap" style="background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%)">
+          <text>🗄️</text>
+        </view>
+        <text class="section-title">知识库模块</text>
       </view>
       <view class="card">
-        <view class="row">
-          <text class="label">存储方案</text>
-          <text class="value">SQLite 本地数据库</text>
+        <view class="info-row">
+          <text class="row-label">存储方案</text>
+          <text class="row-value">SQLite 本地数据库</text>
         </view>
-        <view class="row">
-          <text class="label">文本提取</text>
-          <text class="value">PyPDF2（PDF）/ python-docx（DOCX）/ 原生读取（TXT）</text>
+        <view class="info-row">
+          <text class="row-label">向量化模型</text>
+          <text class="row-value highlight-cyan">BAAI/bge-small-zh</text>
         </view>
-        <view class="row">
-          <text class="label">向量化模型</text>
-          <text class="value highlight-blue">BAAI/bge-small-zh（中文语义嵌入）</text>
+        <view class="info-row">
+          <text class="row-label">向量索引</text>
+          <text class="row-value highlight-cyan">FAISS HNSW</text>
         </view>
-        <view class="row">
-          <text class="label">向量索引</text>
-          <text class="value highlight-blue">FAISS HNSW（近似最近邻检索）</text>
+        <view class="info-row">
+          <text class="row-label">文档数量</text>
+          <text class="row-value">{{docCount}} 篇</text>
         </view>
-        <view class="row">
-          <text class="label">知识库文档数</text>
-          <text class="value">{{docCount}} 篇</text>
-        </view>
-        <view class="row">
-          <text class="label">索引切片数</text>
-          <text class="value">{{chunkCount}} 块</text>
+        <view class="info-row">
+          <text class="row-label">切片数量</text>
+          <text class="row-value">{{chunkCount}} 块</text>
         </view>
       </view>
     </view>
 
-    <!-- 模块3：智能问答 -->
+    <!-- 模块三：智能问答 -->
     <view class="section">
       <view class="section-header">
-        <text class="section-icon">💬</text>
-        <text class="section-title">模块三：智能问答（RAG 流程）</text>
+        <view class="section-icon-wrap" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">
+          <text>💬</text>
+        </view>
+        <text class="section-title">智能问答模块</text>
       </view>
       <view class="card">
-        <view class="flow-steps">
-          <view class="step">
-            <view class="step-num"><text>1</text></view>
-            <view class="step-body">
+        <!-- RAG 流程 -->
+        <view class="flow-container">
+          <view class="flow-step">
+            <view class="step-num">1</view>
+            <view class="step-content">
               <text class="step-title">问题向量化</text>
-              <text class="step-desc">用 BAAI/bge-small-zh 将问题编码为语义向量</text>
+              <text class="step-desc">BAAI/bge-small-zh 编码问题为语义向量</text>
             </view>
           </view>
-          <view class="step-arrow">▼</view>
-          <view class="step">
-            <view class="step-num"><text>2</text></view>
-            <view class="step-body">
-              <text class="step-title">FAISS 向量检索</text>
-              <text class="step-desc">在知识库中检索 Top-K 相关文本片段</text>
+          <view class="flow-arrow">↓</view>
+          <view class="flow-step">
+            <view class="step-num">2</view>
+            <view class="step-content">
+              <text class="step-title">向量检索</text>
+              <text class="step-desc">FAISS HNSW 检索 Top-K 相关片段</text>
             </view>
           </view>
-          <view class="step-arrow">▼</view>
-          <view class="step">
-            <view class="step-num"><text>3</text></view>
-            <view class="step-body">
-              <text class="step-title">重排序精选</text>
-              <text class="step-desc">BAAI/bge-reranker-v2-m3 对候选片段重新排序</text>
-            </view>
-          </view>
-          <view class="step-arrow">▼</view>
-          <view class="step">
-            <view class="step-num"><text>4</text></view>
-            <view class="step-body">
-              <text class="step-title">大模型生成回答</text>
-              <text class="step-desc">DeepSeek Chat 基于检索到的上下文生成最终答案</text>
+          <view class="flow-arrow">↓</view>
+          <view class="flow-step">
+            <view class="step-num">3</view>
+            <view class="step-content">
+              <text class="step-title">KIMI 生成</text>
+              <text class="step-desc">Moonshot KIMI 基于上下文生成答案</text>
             </view>
           </view>
         </view>
-        <view class="row" style="margin-top:24rpx">
-          <text class="label">RAG系统状态</text>
-          <text class="value" style="color: {{ragStatusColor}}">{{ragStatus}}</text>
+        
+        <view class="info-row">
+          <text class="row-label">RAG 状态</text>
+          <text class="row-status {{ragStatus.indexOf('✅') !== -1 ? 'online' : 'warning'}}">{{ragStatus}}</text>
+        </view>
+        <view class="info-row">
+          <text class="row-label">KIMI API</text>
+          <text class="row-status {{apiStatus === '✅ 已配置' ? 'online' : 'offline'}}">{{apiStatus}}</text>
         </view>
         <view class="tip-box">
-          <text class="tip-text">⚙️ 当向量库或大模型不可用时，系统自动降级为本地关键词检索，确保演示可用。</text>
+          <text class="tip-text">配置 KIMI API Key 可获得更智能的 AI 回答。</text>
         </view>
       </view>
     </view>
 
-    <!-- 模块4：技术栈 -->
+    <!-- 技术栈 -->
     <view class="section">
       <view class="section-header">
-        <text class="section-icon">🛠️</text>
-        <text class="section-title">技术栈总览</text>
+        <view class="section-icon-wrap" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)">
+          <text>🛠️</text>
+        </view>
+        <text class="section-title">技术栈</text>
       </view>
-      <view class="card">
-        <view class="tech-grid">
-          <view class="tech-item">
-            <text class="tech-layer">前端</text>
-            <text class="tech-name">微信小程序</text>
-            <text class="tech-detail">WXML / WXSS / JS</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">后端</text>
-            <text class="tech-name">FastAPI</text>
-            <text class="tech-detail">Python / RESTful API</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">数据库</text>
-            <text class="tech-name">SQLite</text>
-            <text class="tech-detail">本地持久化存储</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">AI模型</text>
-            <text class="tech-name">DeepSeek Chat</text>
-            <text class="tech-detail">大语言模型（LLM）</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">向量模型</text>
-            <text class="tech-name">BGE-small-zh</text>
-            <text class="tech-detail">中文语义嵌入</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">向量索引</text>
-            <text class="tech-name">FAISS</text>
-            <text class="tech-detail">高效近似检索</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">分类器</text>
-            <text class="tech-name">Naive Bayes</text>
-            <text class="tech-detail">scikit-learn</text>
-          </view>
-          <view class="tech-item">
-            <text class="tech-layer">重排序</text>
-            <text class="tech-name">BGE-reranker</text>
-            <text class="tech-detail">候选文档精排</text>
-          </view>
+      <view class="tech-grid">
+        <view class="tech-card">
+          <text class="tech-layer">前端</text>
+          <text class="tech-name">微信小程序</text>
+        </view>
+        <view class="tech-card">
+          <text class="tech-layer">后端</text>
+          <text class="tech-name">FastAPI</text>
+        </view>
+        <view class="tech-card">
+          <text class="tech-layer">数据库</text>
+          <text class="tech-name">SQLite</text>
+        </view>
+        <view class="tech-card">
+          <text class="tech-layer">AI 模型</text>
+          <text class="tech-name">KIMI</text>
+        </view>
+        <view class="tech-card">
+          <text class="tech-layer">向量模型</text>
+          <text class="tech-name">BGE-small-zh</text>
+        </view>
+        <view class="tech-card">
+          <text class="tech-layer">运行环境</text>
+          <text class="tech-name">CPU</text>
         </view>
       </view>
     </view>
 
+    <!-- 底部 -->
     <view class="footer">
-      <text class="footer-text">智学助手 v1.1.0 · 人工智能课程大作业</text>
+      <text class="footer-text">智学助手 v1.1.0</text>
     </view>
-
   </block>
 </scroll-view>

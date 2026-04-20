@@ -1,194 +1,211 @@
+/** 首页样式 - 现代深色科技风格 **/
+
 .container {
-  padding: 30rpx;
-  background-color: #f5f5f5;
   min-height: 100vh;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  padding: 24rpx 32rpx;
+  padding-bottom: 120rpx;
 }
 
-.header {
-  text-align: center;
-  padding: 40rpx 0;
-}
-
-.title {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #333;
-  display: block;
-}
-
-.subtitle {
-  font-size: 28rpx;
-  color: #666;
-  margin-top: 10rpx;
-  display: block;
-}
-
-.upload-section {
-  margin: 40rpx 0;
-}
-
-.status-banner {
-  display: flex;
-  justify-content: space-between;
+/* 状态指示器 */
+.status-bar {
+  display: inline-flex;
   align-items: center;
-  padding: 24rpx 28rpx;
-  border-radius: 18rpx;
-  margin-bottom: 24rpx;
+  padding: 10rpx 24rpx;
+  border-radius: 50rpx;
+  margin-bottom: 32rpx;
 }
 
-.status-ok {
-  background: linear-gradient(135deg, #e8fff3 0%, #d3f4ff 100%);
-  color: #14532d;
+.status-bar.online {
+  background: rgba(34, 197, 94, 0.15);
 }
 
-.status-offline {
-  background: linear-gradient(135deg, #fff1e6 0%, #ffe0e0 100%);
-  color: #9a3412;
+.status-bar.offline {
+  background: rgba(239, 68, 68, 0.15);
 }
 
-.status-label {
-  font-size: 26rpx;
-  font-weight: 600;
+.status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
 }
 
-.status-value {
+.status-bar.online .status-dot {
+  background: #22c55e;
+  box-shadow: 0 0 12rpx #22c55e;
+}
+
+.status-bar.offline .status-dot {
+  background: #ef4444;
+  box-shadow: 0 0 12rpx #ef4444;
+}
+
+.status-text {
   font-size: 24rpx;
 }
 
-.upload-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20rpx;
-  padding: 60rpx;
+.status-bar.online .status-text {
+  color: #22c55e;
+}
+
+.status-bar.offline .status-text {
+  color: #ef4444;
+}
+
+/* 核心区域 */
+.hero-section {
+  position: relative;
   text-align: center;
-  color: white;
+  padding: 60rpx 0;
+  margin-bottom: 40rpx;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400rpx;
+  height: 400rpx;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60rpx);
+}
+
+.hero-title {
+  position: relative;
+  display: block;
+  font-size: 56rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f1f5f9 0%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 16rpx;
+}
+
+.hero-subtitle {
+  position: relative;
+  display: block;
+  font-size: 28rpx;
+  color: #94a3b8;
+  letter-spacing: 2rpx;
+}
+
+/* 上传区域 */
+.upload-zone {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 2rpx dashed rgba(139, 92, 246, 0.4);
+  border-radius: 24rpx;
+  padding: 48rpx;
+  margin-bottom: 40rpx;
+  transition: all 0.3s ease;
+}
+
+.upload-zone:active {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+}
+
+.upload-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-icon-wrap {
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(99, 102, 241, 0.4);
 }
 
 .upload-icon {
-  font-size: 80rpx;
+  font-size: 48rpx;
+  color: white;
+  font-weight: 300;
+}
+
+.upload-title {
   display: block;
-}
-
-.upload-text {
-  font-size: 36rpx;
-  font-weight: bold;
-  display: block;
-  margin-top: 20rpx;
-}
-
-.upload-hint {
-  font-size: 24rpx;
-  opacity: 0.8;
-  display: block;
-  margin-top: 10rpx;
-}
-
-.quick-actions {
-  display: flex;
-  justify-content: space-around;
-  margin: 40rpx 0;
-}
-
-.action-item {
-  background: white;
-  border-radius: 16rpx;
-  padding: 40rpx;
-  text-align: center;
-  width: 280rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
-}
-
-.action-icon {
-  font-size: 60rpx;
-  display: block;
-}
-
-.action-text {
-  font-size: 28rpx;
-  color: #333;
-  margin-top: 10rpx;
-  display: block;
-}
-
-.recent-section {
-  margin-top: 40rpx;
-}
-
-.section-title {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20rpx;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 12rpx;
+}
+
+.upload-formats {
   display: block;
+  font-size: 24rpx;
+  color: #64748b;
 }
 
-.file-list {
-  background: white;
-  border-radius: 16rpx;
-  padding: 20rpx;
+/* 快捷入口 */
+.quick-grid {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 48rpx;
 }
 
-.file-item {
+.quick-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 16rpx;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(148, 163, 184, 0.1);
+}
+
+.quick-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #eee;
+  justify-content: center;
+  margin-bottom: 16rpx;
+  font-size: 36rpx;
 }
 
-.file-item:last-child {
-  border-bottom: none;
-}
-
-.file-icon {
-  font-size: 48rpx;
-  margin-right: 20rpx;
-}
-
-.file-info {
-  flex: 1;
-}
-
-.file-name {
-  font-size: 30rpx;
-  color: #333;
-  display: block;
-}
-
-.file-time {
+.quick-label {
   font-size: 24rpx;
-  color: #999;
-  margin-top: 5rpx;
+  color: #94a3b8;
+}
+
+/* 功能特性 */
+.features {
+  margin-bottom: 40rpx;
+}
+
+.section-label {
   display: block;
-}
-
-/* 空文件提示 */
-.empty-files {
-  text-align: center;
-  padding: 40rpx;
-  background: white;
-  border-radius: 16rpx;
-}
-
-.empty-files .empty-text {
-  font-size: 28rpx;
-  color: #999;
-}
-
-/* 功能介绍 */
-.feature-section {
-  margin: 40rpx 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 3rpx;
+  margin-bottom: 20rpx;
 }
 
 .feature-list {
-  background: white;
-  border-radius: 16rpx;
-  padding: 20rpx;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(148, 163, 184, 0.1);
+  overflow: hidden;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  padding: 25rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid rgba(148, 163, 184, 0.1);
 }
 
 .feature-item:last-child {
@@ -196,38 +213,93 @@
 }
 
 .feature-icon {
-  font-size: 48rpx;
-  margin-right: 25rpx;
-  width: 60rpx;
+  font-size: 40rpx;
+  margin-right: 20rpx;
+  width: 56rpx;
   text-align: center;
 }
 
-.feature-info {
+.feature-content {
   flex: 1;
 }
 
 .feature-title {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
   display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 6rpx;
 }
 
 .feature-desc {
-  font-size: 26rpx;
-  color: #666;
-  margin-top: 8rpx;
   display: block;
+  font-size: 24rpx;
+  color: #64748b;
 }
 
-/* 技术信息 */
-.tech-info {
+/* 最近文件 */
+.recent-section {
+  margin-bottom: 40rpx;
+}
+
+.recent-list {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(148, 163, 184, 0.1);
+  overflow: hidden;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid rgba(148, 163, 184, 0.1);
+}
+
+.recent-item:last-child {
+  border-bottom: none;
+}
+
+.recent-icon {
+  width: 64rpx;
+  height: 64rpx;
+  background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  font-size: 32rpx;
+}
+
+.recent-info {
+  flex: 1;
+}
+
+.recent-name {
+  display: block;
+  font-size: 28rpx;
+  color: #f1f5f9;
+  margin-bottom: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-meta {
+  display: block;
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+/* 底部 */
+.footer {
   text-align: center;
   padding: 40rpx 0;
-  margin-top: 20rpx;
 }
 
-.tech-text {
-  font-size: 24rpx;
-  color: #999;
+.footer-text {
+  font-size: 22rpx;
+  color: #475569;
+  letter-spacing: 1rpx;
 }

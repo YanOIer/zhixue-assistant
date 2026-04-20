@@ -1,47 +1,8 @@
 """
-RAG 系统 - 简易版使用指南
-==========================
-
-【什么是RAG？】
-RAG = Retrieval Augmented Generation (检索增强生成)
-简单说：先查资料，再让AI回答。就像开卷考试一样！
-
-【本程序工作流程】
-1. 加载模型（Embedding模型 + 重排序模型）
-2. 添加文档 → 切成小段 → 转成向量 → 存起来
-3. 提问时 → 问题转成向量 → 找最相似的文档段 → 让AI回答
-
-【模型说明】
-- Embedding模型：把文字变成数字向量（如"bge-small-zh"）
-- 重排序模型：精排搜索结果（如"bge-reranker-v2-m3"）
-- 模型只需下载一次，存到本地后重复使用
-
-【项目目录结构】
-zhixue-assistant/           # 项目根目录
-├── ai_module/              # AI模块（本程序所在目录）
-│   ├── rag_system.py       # 本文件（主程序）
-│   ├── models/             # 模型缓存目录（自动创建）
-│   │   └── models--BAAI--bge-small-zh/  # 下载的Embedding模型
-│   ├── download_models.py  # 模型下载脚本
-│   ├── document_processor.py
-│   ├── document_classifier.p y
-│   ├── integrate_with_backend.py
-│   └── requirements.txt    # Python依赖
-├── backend/                # 后端服务
-│   ├── main.py
-│   ├── database.py
-│   └── requirements.txt
-├── frontend/               # 前端（微信小程序）
-│   ├── app.js
-│   ├── app.json
-│   ├── app.wxss
-│   ├── sitemap.json
-│   └── pages/
-└── README.md
-
-【模型存放位置】
-模型下载后会自动保存在：ai_module/models/
-格式：models--作者名--模型名/snapshots/版本号/
+RAG 检索系统
+============
+基于 BGE-small-zh Embedding + FAISS HNSW 向量索引的本地语义检索系统。
+无需外部 API Key，完全本地运行。
 """
 
 import sys
@@ -217,7 +178,7 @@ class RAGSystem:
             device=device,
             cache_folder=DEFAULT_CACHE_DIR
         )
-        self.dimension = self.embedding_model.get_embedding_dimension()
+        self.dimension = self.embedding_model.get_sentence_embedding_dimension()
         print(f"      向量维度: {self.dimension}")
         print(f"      Model loaded")
         
@@ -346,20 +307,15 @@ class RAGSystem:
         chunks = []
         start = 0
         text_length = len(text)
-        
+
+        # 每步前进 chunk_size - overlap，保留 overlap 大小的重叠保证语义连贯
+        step = max(chunk_size - overlap, 1)
+
         while start < text_length:
-            # 截取一段
             end = min(start + chunk_size, text_length)
-            chunk = text[start:end]
-            chunks.append(chunk)
-            
-            # 下一步的起始位置（考虑重叠）
-            start = end - overlap
-            
-            # 防止死循环
-            if start >= end:
-                break
-        
+            chunks.append(text[start:end])
+            start += step  # 正确：逐步前进
+
         return chunks
     
     def _encode_texts(self, texts: List[str]) -> np.ndarray:
@@ -485,7 +441,7 @@ class RAGSystem:
         1. 搜索相关文档
         2. 重排序（如果启用）
         3. 构建Prompt
-        4. 调用大模型生成回答
+        4. 调用大模型生成回答（无API Key时返回检索内容）
         
         参数:
             question: 用户问题
@@ -523,16 +479,14 @@ class RAGSystem:
         print("\n[Step 2] 重排序...")
         top_results = self.rerank(question, candidates, top_n=top_k)
         
-        # 第3步：构建Prompt
-        print("\n[Step 3] 构建Prompt...")
+        # 第3步：构建上下文
+        print("\n[Step 3] 构建上下文...")
         context_texts = [r["text"] for r in top_results]
         context = "\n\n---\n\n".join(context_texts)
         
-        prompt = self._build_prompt(context, question)
-        
-        # 第4步：调用大模型
+        # 第4步：调用大模型（无API Key时直接返回检索内容）
         print("\n[Step 4] 生成回答...")
-        answer = self._call_llm(prompt)
+        answer = self._call_llm(context, question)
         
         # 收集来源文档ID
         sources = list(set([r["doc_id"] for r in top_results]))
@@ -568,31 +522,41 @@ class RAGSystem:
 
 请回答："""
     
-    def _call_llm(self, prompt: str) -> str:
+    def _call_llm(self, context: str, question: str) -> str:
         """
-        调用大模型API（DeepSeek）
+        调用 KIMI 大模型 API 或返回检索内容
         
-        需要设置环境变量：DEEPSEEK_API_KEY
+        需要设置环境变量 MOONSHOT_API_KEY
         """
-        api_key = os.getenv("DEEPSEEK_API_KEY", "")
+        # 构建 prompt
+        prompt = self._build_prompt(context, question)
+        
+        # 获取 KIMI API Key
+        api_key = os.getenv("MOONSHOT_API_KEY", "sk-vtxfDn2uLrgSY0hHHr9ncdvlEkKKCr9ENkEoGGmtz7xLOUkb")
         
         if not api_key:
-            print("  警告: 未配置API Key，返回模拟回答")
-            print("  请设置环境变量：export DEEPSEEK_API_KEY='your-key'")
-            return "[模拟回答] 请配置DeepSeek API Key以获取真实AI回答。"
+            print("  提示: 未配置 KIMI API Key，直接返回检索内容")
+            return f"""根据本地知识库检索，找到以下相关内容：
+
+{context}
+
+---
+💡 提示：配置 KIMI API Key (MOONSHOT_API_KEY) 可获得更智能的AI回答"""
+        
+        print(f"  使用 KIMI API 生成回答...")
         
         try:
             response = requests.post(
-                "https://api.deepseek.com/v1/chat/completions",
+                "https://api.moonshot.cn/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "deepseek-chat",
+                    "model": "moonshot-v1-8k",  # 可选: moonshot-v1-8k, moonshot-v1-32k, moonshot-v1-128k
                     "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7,  # 随机性（0-1，越大越创意）
-                    "max_tokens": 1000   # 最大输出长度
+                    "temperature": 0.7,
+                    "max_tokens": 1000
                 },
                 timeout=30
             )
@@ -601,8 +565,8 @@ class RAGSystem:
             return result["choices"][0]["message"]["content"]
             
         except Exception as e:
-            print(f"  API调用失败: {e}")
-            return f"调用AI服务失败: {str(e)}"
+            print(f"  KIMI API调用失败: {e}")
+            return f"调用KIMI服务失败: {str(e)}"
     
     # ==================== 保存/加载 ====================
     

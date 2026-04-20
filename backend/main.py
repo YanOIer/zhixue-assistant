@@ -84,26 +84,18 @@ def extract_preview(text, limit=180):
     return cleaned[:limit]
 
 
-def build_unique_filename(filename):
-    """为上传文件生成唯一文件名，格式：原始名-时间戳短码.扩展名。
+def build_safe_filename(filename):
+    """将文件名转换为安全格式，保留原始名称。
     
-    存储名只用于避免磁盘重名，前端展示始终使用数据库中的 original_name。
+    只去除路径危险字符，保留中文和扩展名。
     """
-    import time
     safe_name = Path(filename or '').name.strip()
     if not safe_name:
         safe_name = 'upload.txt'
 
-    suffix = Path(safe_name).suffix.lower() or '.bin'
-    stem = Path(safe_name).stem
-
-    # 对中文/特殊字符 stem 做安全处理：保留中文，去除路径危险字符
-    stem = re.sub(r'[\\/:*?"<>|]', '_', stem)
-    stem = stem[:40] or 'upload'
-
-    # 用毫秒时间戳末6位保证唯一
-    ts = str(int(time.time() * 1000))[-6:]
-    return f"{stem}-{ts}{suffix}"
+    # 对特殊字符做安全处理：保留中文，去除路径危险字符
+    safe_name = re.sub(r'[\\/:*?"<>|]', '_', safe_name)
+    return safe_name
 
 
 def infer_text_answer(question):
@@ -222,7 +214,7 @@ async def upload_file(file: UploadFile = File(...)):
             "message": "暂不支持老式 DOC 文件，请另存为 DOCX 后上传。",
         }
 
-    saved_name = build_unique_filename(original_name)
+    saved_name = build_safe_filename(original_name)
     saved_path = UPLOAD_DIR / saved_name
 
     try:
@@ -397,31 +389,37 @@ async def test():
 @app.get("/api/ai/info")
 async def ai_info():
     """获取 AI 系统状态。"""
+    import os
+    kimi_key = os.getenv("MOONSHOT_API_KEY", "")
+    
     info = {
         "rag_system": {
             "status": "ready" if rag_system else "fallback_mode",
-            "method": "Retrieval-Augmented Generation (RAG)",
+            "method": "检索增强生成 (RAG)",
             "type": "深度学习",
             "components": {
-                "embedding": "BAAI/bge-small-zh",
-                "retrieval": "FAISS HNSW",
-                "reranker": "BAAI/bge-reranker-v2-m3",
-                "llm": "DeepSeek Chat"
+                "embedding": "BAAI/bge-small-zh (本地)",
+                "retrieval": "FAISS HNSW 向量索引",
+                "reranker": "已禁用（CPU模式）",
+                "llm": "KIMI (Moonshot)" if kimi_key else "未配置"
             },
+            "api_configured": bool(kimi_key),
             "stats": rag_system.get_stats() if rag_system else None
         },
         "document_classifier": {
             "status": "ready" if document_classifier else "not_initialized",
-            "method": "Naive Bayes Classifier",
+            "method": "朴素贝叶斯分类器",
             "type": "传统机器学习",
             "algorithm": "多项式朴素贝叶斯",
-            "features": "词袋模型",
+            "features": "词袋模型 + TF-IDF",
             "categories": ["数学", "英语", "政治", "计算机", "其他"],
             "is_trained": document_classifier.is_trained if document_classifier else False
         },
-        "demo_mode": {
-            "available": True,
-            "description": "当大模型或向量库不可用时，系统会自动降级为本地文档检索回答。"
+        "ai_model": {
+            "provider": "KIMI (Moonshot)",
+            "model": "moonshot-v1-8k",
+            "configured": bool(kimi_key),
+            "description": "KIMI 是月之暗面开发的国产大模型，中文理解能力强，响应速度快。" if kimi_key else "未配置 API Key，将返回检索内容"
         }
     }
     return {"success": True, "data": info}

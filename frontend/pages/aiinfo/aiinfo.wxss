@@ -1,213 +1,288 @@
+/** AI系统信息页面样式 - 深色科技风格 **/
+
 .page {
-  background: #f0f4f8;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
   min-height: 100vh;
+  padding-bottom: 60rpx;
 }
 
+/* 加载状态 */
 .loading-wrap {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  padding: 100rpx 0;
-}
-.loading-text {
-  color: #999;
-  font-size: 30rpx;
+  justify-content: center;
+  padding: 120rpx 0;
 }
 
-/* Banner */
-.banner {
-  background: linear-gradient(135deg, #4A90E2, #357abd);
-  padding: 48rpx 40rpx 36rpx;
-  color: white;
-}
-.banner-title {
-  display: block;
-  font-size: 38rpx;
-  font-weight: bold;
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid rgba(139, 92, 246, 0.2);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   margin-bottom: 20rpx;
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #64748b;
+  font-size: 28rpx;
+}
+
+/* 状态卡片 */
+.status-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  border: 1rpx solid rgba(139, 92, 246, 0.3);
+  margin: 32rpx;
+  padding: 48rpx 36rpx;
+  border-radius: 24rpx;
+  text-align: center;
+  overflow: hidden;
+}
+
+.status-glow {
+  position: absolute;
+  top: -100rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300rpx;
+  height: 300rpx;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+  filter: blur(40rpx);
+}
+
+.status-title {
+  position: relative;
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 20rpx;
+}
+
 .run-mode-badge {
   display: inline-block;
-  background: rgba(255,255,255,0.25);
-  border-radius: 30rpx;
-  padding: 8rpx 24rpx;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  padding: 10rpx 28rpx;
+  border-radius: 50rpx;
   margin-bottom: 16rpx;
 }
-.run-mode-text {
-  font-size: 26rpx;
+
+.run-mode-badge text {
+  font-size: 24rpx;
   color: white;
   font-weight: 600;
 }
+
 .run-mode-desc {
   display: block;
   font-size: 24rpx;
-  color: rgba(255,255,255,0.85);
+  color: #94a3b8;
   line-height: 1.6;
 }
 
-/* Section */
+/* 区块 */
 .section {
-  padding: 0 24rpx;
-  margin-top: 32rpx;
+  padding: 0 32rpx;
+  margin-bottom: 32rpx;
 }
+
 .section-header {
   display: flex;
   align-items: center;
   margin-bottom: 16rpx;
 }
-.section-icon {
-  font-size: 36rpx;
-  margin-right: 12rpx;
+
+.section-icon-wrap {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+  font-size: 28rpx;
 }
+
 .section-title {
   font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #f1f5f9;
 }
 
-/* Card */
+/* 信息卡片 */
 .card {
-  background: white;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1rpx solid rgba(148, 163, 184, 0.1);
   border-radius: 20rpx;
-  padding: 32rpx 28rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.07);
+  padding: 24rpx;
 }
 
-/* Row */
-.row {
+.info-row {
   display: flex;
-  align-items: flex-start;
-  padding: 14rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid rgba(148, 163, 184, 0.1);
 }
-.row:last-child {
+
+.info-row:last-of-type {
   border-bottom: none;
 }
-.label {
+
+.row-label {
   font-size: 26rpx;
-  color: #888;
+  color: #64748b;
   width: 160rpx;
   flex-shrink: 0;
-  padding-top: 2rpx;
 }
-.value {
-  font-size: 27rpx;
-  color: #333;
+
+.row-value {
+  font-size: 26rpx;
+  color: #f1f5f9;
   flex: 1;
-  line-height: 1.5;
 }
-.highlight-blue {
-  color: #4A90E2;
-  font-weight: 500;
-}
-.highlight-green {
-  color: #28a745;
+
+.row-status {
+  font-size: 26rpx;
   font-weight: 500;
 }
 
-/* Tip Box */
+.row-status.online {
+  color: #22c55e;
+}
+
+.row-status.warning {
+  color: #f59e0b;
+}
+
+.row-status.offline {
+  color: #ef4444;
+}
+
+.highlight-purple {
+  color: #a78bfa;
+  font-weight: 500;
+}
+
+.highlight-cyan {
+  color: #22d3ee;
+  font-weight: 500;
+}
+
+/* 提示框 */
 .tip-box {
-  background: #f8f9ff;
-  border-left: 6rpx solid #4A90E2;
+  background: rgba(99, 102, 241, 0.1);
+  border-left: 4rpx solid #6366f1;
   border-radius: 0 12rpx 12rpx 0;
   padding: 16rpx 20rpx;
-  margin-top: 24rpx;
-}
-.tip-text {
-  font-size: 24rpx;
-  color: #555;
-  line-height: 1.7;
+  margin-top: 16rpx;
 }
 
-/* Flow Steps */
-.flow-steps {
-  padding: 8rpx 0;
+.tip-text {
+  font-size: 24rpx;
+  color: #94a3b8;
+  line-height: 1.6;
 }
-.step {
+
+/* RAG 流程 */
+.flow-container {
+  margin-bottom: 20rpx;
+}
+
+.flow-step {
   display: flex;
   align-items: flex-start;
-  background: #f8fbff;
+  background: rgba(15, 23, 42, 0.6);
   border-radius: 16rpx;
   padding: 20rpx;
-  margin-bottom: 4rpx;
+  margin-bottom: 8rpx;
 }
+
 .step-num {
   width: 48rpx;
   height: 48rpx;
-  background: #4A90E2;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border-radius: 50%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: white;
   margin-right: 20rpx;
   flex-shrink: 0;
 }
-.step-num text {
-  color: white;
-  font-size: 26rpx;
-  font-weight: bold;
-}
-.step-body {
+
+.step-content {
   flex: 1;
 }
+
 .step-title {
   display: block;
   font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #f1f5f9;
   margin-bottom: 6rpx;
 }
+
 .step-desc {
+  display: block;
   font-size: 24rpx;
-  color: #666;
+  color: #64748b;
   line-height: 1.5;
 }
-.step-arrow {
+
+.flow-arrow {
   text-align: center;
-  color: #4A90E2;
+  color: #6366f1;
   font-size: 28rpx;
   padding: 8rpx 0;
 }
 
-/* Tech Grid */
+/* 技术网格 */
 .tech-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
 }
-.tech-item {
+
+.tech-card {
   width: calc(50% - 8rpx);
-  background: #f8f9ff;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1rpx solid rgba(148, 163, 184, 0.1);
   border-radius: 16rpx;
-  padding: 20rpx 22rpx;
+  padding: 20rpx;
   box-sizing: border-box;
 }
+
 .tech-layer {
   display: block;
   font-size: 22rpx;
-  color: #4A90E2;
+  color: #6366f1;
   font-weight: 600;
   margin-bottom: 6rpx;
 }
+
 .tech-name {
   display: block;
   font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 4rpx;
-}
-.tech-detail {
-  display: block;
-  font-size: 22rpx;
-  color: #888;
+  font-weight: 600;
+  color: #f1f5f9;
 }
 
-/* Footer */
+/* 底部 */
 .footer {
   text-align: center;
   padding: 48rpx 0 60rpx;
 }
+
 .footer-text {
-  font-size: 24rpx;
-  color: #bbb;
+  font-size: 22rpx;
+  color: #475569;
 }

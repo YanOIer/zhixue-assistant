@@ -8,15 +8,16 @@
     "pages/aiinfo/aiinfo"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#4A90E2",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#0f172a",
     "navigationBarTitleText": "智学助手",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#4A90E2",
-    "backgroundColor": "#ffffff",
+    "color": "#64748b",
+    "selectedColor": "#8b5cf6",
+    "backgroundColor": "#0f172a",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",

@@ -1,0 +1,63 @@
+英语从句语法总结
+================
+
+一、名词性从句
+在句中起名词作用的从句。
+
+1. 主语从句
+That he will come is certain. (他一定会来)
+Whether we will go depends on the weather. (我们是否去取决于天气)
+
+2. 宾语从句
+I know that he is a good student. (我知道他是个好学生)
+She asked where we lived. (她问我们住在哪里)
+
+3. 表语从句
+The question is whether we can finish the work on time. (问题是我们能否按时完成工作)
+
+4. 同位语从句
+The news that he won the game made us happy. (他赢得比赛的消息让我们高兴)
+
+二、定语从句
+修饰名词或代词的从句。
+
+1. 关系代词
+- who/whom：指人
+- which：指物
+- that：可指人也可指物
+- whose：表示所有格
+
+例句：
+The man who helped me is my teacher. (帮助我的人是我的老师)
+The book which I bought yesterday is interesting. (我昨天买的那本书很有趣)
+
+2. 关系副词
+- when：时间
+- where：地点
+- why：原因
+
+例句：
+This is the place where we met first. (这是我们第一次见面的地方)
+
+三、状语从句
+修饰动词、形容词或副词的从句。
+
+1. 时间状语从句
+when, while, as, before, after, since, until
+When the rain stopped, we continued our journey. (雨停后，我们继续旅行)
+
+2. 条件状语从句
+if, unless, as long as
+If you study hard, you will pass the exam. (如果你努力学习，你就会通过考试)
+
+3. 原因状语从句
+because, since, as, for
+Because it was raining, we stayed at home. (因为下雨，我们待在家里)
+
+4. 结果状语从句
+so...that, such...that
+He was so tired that he fell asleep. (他太累了，以至于睡着了)
+
+5. 让步状语从句
+although, though, even if, however
+Although he is young, he knows a lot. (虽然他很年轻，但他懂很多)

@@ -531,8 +531,8 @@ class RAGSystem:
         # 构建 prompt
         prompt = self._build_prompt(context, question)
         
-        # 获取 KIMI API Key
-        api_key = os.getenv("MOONSHOT_API_KEY", "sk-vtxfDn2uLrgSY0hHHr9ncdvlEkKKCr9ENkEoGGmtz7xLOUkb")
+        # 获取 KIMI API Key（优先从环境变量读取）
+        api_key = os.getenv("MOONSHOT_API_KEY", "")
         
         if not api_key:
             print("  提示: 未配置 KIMI API Key，直接返回检索内容")

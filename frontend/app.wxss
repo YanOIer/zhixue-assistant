@@ -1,16 +1,16 @@
-/** 全局样式 - 现代科技风格 **/
+/** 全局样式 - 前卫极简科技风 **/
 page {
-  --primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --primary-solid: #6366f1;
+  --primary: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  --primary-solid: #7c3aed;
   --accent: #22d3ee;
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border: rgba(148, 163, 184, 0.1);
-  --shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.3);
+  --bg-primary: #09090b;
+  --bg-secondary: #18181b;
+  --bg-card: rgba(24, 24, 27, 0.8);
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border: rgba(255, 255, 255, 0.04);
+  --shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.4);
 }
 
 .container {

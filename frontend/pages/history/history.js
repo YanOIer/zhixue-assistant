@@ -22,8 +22,12 @@ Page({
       url: '/api/chat/history',
       success: (res) => {
         if (res.data.success) {
+          const history = (res.data.data || []).map(item => ({
+            ...item,
+            time: (item.time || '').substring(0, 16)
+          }))
           this.setData({
-            history: res.data.data || [],
+            history,
             isLoading: false
           })
         } else {

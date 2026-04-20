@@ -1,10 +1,10 @@
 <view class="container">
   <view class="user-info">
     <view class="avatar-wrapper">
-      <open-data type="userAvatarUrl" class="avatar"></open-data>
+      <text class="avatar-emoji">🎓</text>
     </view>
     <view class="nickname">
-      <open-data type="userNickName"></open-data>
+      <text class="nickname-text">智学助手用户</text>
     </view>
   </view>
 

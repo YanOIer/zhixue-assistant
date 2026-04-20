@@ -7,6 +7,9 @@
         <view class="avatar">{{item.type === 'user' ? '👤' : '🤖'}}</view>
         <view class="content">
           <text class="text" selectable>{{item.content}}</text>
+          <view class="mode-label" wx:if="{{item.modeLabel}}">
+            <text class="mode-text">📌 {{item.modeLabel}}</text>
+          </view>
           <view class="sources" wx:if="{{item.sources && item.sources.length > 0}}">
             <text class="sources-title">参考来源：</text>
             <text class="source-item" wx:for="{{item.sources}}" wx:for-item="source" wx:key="*this">{{source}}</text>

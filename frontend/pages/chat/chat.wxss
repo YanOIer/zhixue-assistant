@@ -66,6 +66,19 @@
   border-top: 1rpx solid #eee;
 }
 
+.mode-label {
+  margin-top: 12rpx;
+  padding: 8rpx 16rpx;
+  background: #f0f7ff;
+  border-radius: 8rpx;
+  display: inline-block;
+}
+
+.mode-text {
+  font-size: 22rpx;
+  color: #4A90E2;
+}
+
 .message.user .sources {
   border-top-color: rgba(255,255,255,0.3);
 }

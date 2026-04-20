@@ -12,7 +12,7 @@
 
   <view class="file-grid">
     <view class="file-card" wx:for="{{files}}" wx:key="id" bindtap="viewFile" data-id="{{item.id}}">
-      <text class="file-icon">{{item.type === 'pdf' ? '📄' : item.type === 'image' ? '🖼️' : '📝'}}</text>
+      <text class="file-icon">{{item.type === 'pdf' ? '📄' : (item.type === 'jpg' || item.type === 'jpeg' || item.type === 'png' || item.type === 'bmp' || item.type === 'gif') ? '🖼️' : '📝'}}</text>
       <text class="file-category">{{item.category}}</text>
       <text class="file-name">{{item.name}}</text>
       <text class="file-meta">{{item.size}} · {{item.time}}</text>

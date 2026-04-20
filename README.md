@@ -1,64 +1,84 @@
 # 智学助手 (Zhixue Assistant)
 
-**北京科技大学 2025年春季人工智能课程大作业**
+**北京科技大学 2025 年春季人工智能课程大作业**
 
-> 基于 RAG（检索增强生成）技术的智能学习助手微信小程序
-
----
+> 一个基于微信小程序 + FastAPI + RAG 的智能学习资料助手
 
 ## 项目概述
 
-智学助手是一款基于 RAG（检索增强生成）技术的智能学习助手微信小程序，帮助学生更高效地管理和学习资料。
+智学助手用于管理学习资料并围绕资料进行问答。当前版本支持文档上传、自动分类、RAG 检索问答、失败时自动降级到本地检索演示模式，以及对话历史保存。
 
-### 核心功能
+## 当前已实现功能
 
-1. **文档上传** - 支持 PDF、TXT、Word 格式学习资料上传
-2. **智能分类** - 自动识别文档类型（数学/英语/政治/计算机/其他）
-3. **AI 问答** - 基于上传文档的智能问答，优先走 RAG，失败自动降级到本地检索
-4. **知识溯源** - 显示答案来源，可追溯可验证
-5. **对话历史** - 保存问答记录，支持查看和继续对话
+1. 文档上传与管理
+   支持 `PDF`、`TXT`、`DOCX`、`Markdown`，以及 `JPG/JPEG/PNG/BMP/GIF` 图片上传。
+2. 文档内容提取
+   文本类文件会自动抽取正文；图片会尝试走 OCR 提取文字。
+3. 自动文档分类
+   使用朴素贝叶斯分类器，将资料分类到“数学 / 英语 / 政治 / 计算机 / 其他”。
+4. 智能问答
+   优先使用 RAG 检索增强问答；当 RAG 或大模型不可用时，会自动切换到本地知识库检索回答。
+5. 答案来源展示
+   聊天接口会返回参考资料来源，便于答辩演示和结果追溯。
+6. 对话历史
+   支持查看历史记录与一键清空历史。
+7. 前端后端地址可配置
+   小程序“我的”页面可以直接修改后端地址，便于本机调试和真机调试切换。
 
-### 技术架构
+## 技术架构
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  微信小程序  │────▶│  FastAPI    │────▶│   RAG系统   │
-│  (前端)     │◀────│  (后端)     │◀────│  (AI核心)   │
-└─────────────┘     └─────────────┘     └─────────────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │   SQLite    │
-                    │  (数据库)   │
-                    └─────────────┘
+```text
+微信小程序前端
+    ↓
+FastAPI 后端
+    ↓
+文档处理 / 分类 / RAG 检索
+    ↓
+SQLite 数据库存储
 ```
 
 | 层级 | 技术 |
 |------|------|
-| 前端 | 微信小程序 (WXML/WXSS/JS) |
+| 前端 | 微信小程序 (`WXML` / `WXSS` / `JS`) |
 | 后端 | Python + FastAPI |
-| AI | RAG (BGE Embedding + FAISS + DeepSeek API) |
-| 分类器 | 朴素贝叶斯分类器 |
+| AI 检索 | Sentence Transformers + FAISS + DeepSeek API |
+| 文档分类 | Multinomial Naive Bayes |
 | 数据库 | SQLite |
 
----
+## 目录结构
+
+```text
+zhixue-assistant/
+├── ai_module/                # RAG、分类、文档处理
+├── backend/                  # FastAPI 后端与数据库操作
+├── frontend/                 # 微信小程序前端
+├── test_files/               # 测试资料
+├── uploads/                  # 上传文件保存目录
+├── init_rag_data.py          # 初始化 RAG 并加载测试资料
+├── start_server.py           # 完整模式启动脚本
+├── start_simple.py           # 简单模式启动脚本
+├── test_backend.py           # 后端测试脚本
+├── requirements.txt          # 项目依赖
+└── README.md
+```
 
 ## 快速开始
-
-### 环境准备
-
-确保已安装 Python 3.9+ 和 Git。
 
 ### 1. 创建虚拟环境
 
 ```bash
-# 创建虚拟环境
 python -m venv .venv
+```
 
-# 激活虚拟环境 (Windows)
+Windows:
+
+```bash
 .venv\Scripts\activate
+```
 
-# 激活虚拟环境 (Mac/Linux)
+macOS / Linux:
+
+```bash
 source .venv/bin/activate
 ```
 
@@ -68,250 +88,264 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. 配置 DeepSeek API (可选)
+如果只是先跑后端测试或启动接口，至少需要安装 `FastAPI` 及相关依赖；否则像 `test_backend.py` 里的 FastAPI 路由测试会因为缺少依赖而失败。
 
-如需使用真实 AI 回答，设置环境变量：
+### 3. 配置环境变量
+
+如需启用真实大模型回答，可配置：
 
 ```bash
 # Windows
 set DEEPSEEK_API_KEY=your_api_key_here
 
-# Mac/Linux
+# macOS / Linux
 export DEEPSEEK_API_KEY=your_api_key_here
 ```
 
-### 4. 启动后端服务
-
-**方式一：简单启动（不加载 RAG 模型）**
+可选数据库路径：
 
 ```bash
-python -c "
-import sys
-sys.path.append('ai_module')
-sys.path.append('backend')
-from main import app, set_rag_system
-from database import init_db
-set_rag_system(None)
-init_db()
-import uvicorn
-uvicorn.run(app, host='0.0.0.0', port=8000)
-"
+set ZHIXUE_DB_PATH=D:\path\to\zhixue.db
 ```
 
-**方式二：完整启动（加载 RAG 模型）**
+说明：
+
+- 默认数据库为项目根目录下的 `zhixue.db`
+- 如果默认路径不可写，后端会自动回退到 `.runtime/zhixue_runtime.db`
+
+### 4. 启动后端
+
+简单模式，不加载 RAG 模型，适合联调和演示本地检索：
+
+```bash
+python start_simple.py
+```
+
+完整模式，加载向量模型和重排序模型：
 
 ```bash
 python start_server.py
 ```
 
-> 注意：首次启动会下载模型（约 500MB），请耐心等待。
-> 如果模型或 API Key 不可用，系统仍会以“本地知识库检索演示模式”启动，适合课程作业答辩演示。
+启动后默认访问：
 
-### 5. 启动微信小程序前端
+- API: `http://127.0.0.1:8000`
+- Swagger 文档: `http://127.0.0.1:8000/docs`
+
+说明：
+
+- 首次完整启动可能下载本地模型，耗时较长
+- 即使 RAG 初始化失败，服务也会继续启动，并自动切换到演示模式
+
+### 5. 导入微信小程序前端
 
 1. 打开微信开发者工具
-2. 点击 "导入项目"
-3. 选择 `frontend/` 目录
-4. 填入你的小程序 AppID（或选择测试号）
-5. 点击确定
+2. 导入 `frontend/` 目录
+3. 配置自己的 AppID 或测试号
+4. 启动后端后运行小程序
 
-默认地址是 `http://127.0.0.1:8000`。如果你要用真机调试，可在小程序“我的”页面直接修改后端地址，不需要改代码。
+默认后端地址是 `http://127.0.0.1:8000`。如果需要真机调试，可以在小程序“我的”页面直接修改后端地址，无需改代码。
 
----
+## 页面说明
 
-## 项目结构
+当前小程序主要包含 5 个页面：
 
+- `首页`
+  用于检查后端状态、上传文件、查看最近上传资料，并快速跳转到资料库、对话页和历史页。
+- `资料库`
+  展示所有已上传文件，支持搜索、查看详情、预览文件和删除文件。
+- `对话页`
+  输入问题后调用 `/api/chat`，并在回答底部展示当前回答模式是 `RAG 检索增强` 还是 `本地知识库检索`。
+- `历史页`
+  查看历史问答摘要，支持继续提问和刷新列表。
+- `我的`
+  查看 AI 系统状态、清空聊天历史、清理缓存，并修改后端地址。
+
+## 推荐演示流程
+
+如果你要做课程答辩或现场展示，推荐按下面顺序演示：
+
+1. 启动 `python start_simple.py` 或 `python start_server.py`
+2. 打开首页，先展示系统当前处于 `RAG 模式已就绪` 或 `本地检索演示模式`
+3. 上传一份 `PDF/TXT/DOCX/Markdown` 资料，展示自动分类结果和上传成功提示
+4. 进入资料库，展示文件列表、分类标签、文件预览与删除功能
+5. 进入对话页，围绕刚上传的资料提一个具体问题
+6. 展示回答结果、来源列表，以及回答模式标记
+7. 进入历史记录页，展示问答已被保存
+8. 在“我的”页面展示 AI 系统信息与后端地址配置能力
+
+如果现场网络不稳定或没有配置 API Key，建议直接使用简单模式演示；系统会自动走本地检索逻辑，功能展示仍然完整。
+
+## RAG 与演示模式
+
+当前系统有两条回答路径：
+
+- `RAG 模式`
+  文档会被切块、向量化、写入 FAISS，提问时先检索再交给大模型生成回答。
+- `本地检索演示模式`
+  当未加载 RAG、没有可用大模型、或者 RAG 查询异常时，系统会改为基于数据库中缓存的文本内容做关键词检索，并返回命中的资料片段。
+
+这意味着即使没有完整模型和 API Key，系统仍然可以完成：
+
+- 上传资料
+- 自动分类
+- 资料列表展示
+- 基于资料内容问答
+- 来源展示
+- 历史记录保存
+
+## 文件支持说明
+
+支持上传类型：
+
+- 文本类：`pdf`、`txt`、`docx`、`md`
+- 图片类：`jpg`、`jpeg`、`png`、`bmp`、`gif`
+
+额外说明：
+
+- 老式 `doc` 文件当前不支持，需先转换为 `docx`
+- 图片 OCR 依赖 `pytesseract` 与系统级 `Tesseract-OCR`
+- PDF 提取依赖 `PyPDF2`
+
+## 初始化测试资料
+
+如果你想快速构建一个带测试资料的 RAG 知识库，可以运行：
+
+```bash
+python init_rag_data.py
 ```
-zhixue-assistant/
-├── frontend/                  # 微信小程序前端
-│   ├── pages/                 # 页面目录
-│   │   ├── index/             # 首页
-│   │   ├── library/           # 资料库
-│   │   ├── chat/              # 对话页面
-│   │   ├── profile/           # 个人中心
-│   │   └── history/           # 对话历史
-│   ├── app.js                 # 小程序入口
-│   ├── app.json               # 全局配置
-│   └── app.wxss               # 全局样式
-│
-├── backend/                   # FastAPI后端
-│   ├── main.py                # API入口
-│   ├── database.py            # 数据库操作
-│   └── requirements.txt       # 后端依赖
-│
-├── ai_module/                 # AI核心模块
-│   ├── rag_system.py          # RAG检索系统
-│   ├── document_processor.py  # 文档处理
-│   ├── document_classifier.py # 文档分类器
-│   ├── download_models.py     # 模型下载
-│   └── models/                # 本地模型缓存
-│
-├── start_server.py            # 完整启动脚本
-├── test_backend.py            # 后端测试脚本
-├── requirements.txt           # 完整依赖列表
-└── README.md                  # 本文件
-```
 
----
+它会：
 
-## API 接口文档
+- 初始化数据库
+- 创建轻量级 RAG 系统
+- 读取 `test_files/` 下的 `txt/pdf` 文件
+- 将测试资料写入 RAG 与数据库
 
-### 基础信息
+## 本地开发与联调建议
 
-- 基础 URL: `http://localhost:8000`
-- 文档地址: `http://localhost:8000/docs`
+推荐的本地联调顺序：
 
-### 接口列表
+1. 先运行 `python start_simple.py`
+2. 用浏览器访问 `http://127.0.0.1:8000/docs`，确认接口正常
+3. 再打开微信开发者工具导入 `frontend/`
+4. 如果模拟器无法访问后端，在“我的”页面修改 API 地址
+5. 真机调试时将地址改成电脑局域网 IP，例如 `http://192.168.1.10:8000`
+
+联调时可以优先检查：
+
+- 根接口 `/` 是否返回 `message` 和 `rag_ready`
+- `/api/files` 是否能正常返回文件列表
+- `/api/chat` 是否能正常返回 `answer`、`sources` 和 `mode`
+
+## API 概览
+
+基础地址：`http://localhost:8000`
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/` | 服务状态检查 |
-| GET | `/api/test` | API 测试 |
-| POST | `/api/upload` | 上传文件 |
-| GET | `/api/files` | 获取文件列表 |
-| DELETE | `/api/files/{id}` | 删除文件 |
-| POST | `/api/chat` | 发送问题 |
-| GET | `/api/chat/history` | 获取对话历史 |
-| DELETE | `/api/chat/history` | 清空对话历史 |
-| GET | `/api/ai/info` | 获取 AI 系统信息 |
-| POST | `/api/classify` | 文档分类 |
+| GET | `/` | 服务状态与模式信息 |
+| GET | `/api/test` | 基础联通性测试 |
+| POST | `/api/upload` | 上传资料 |
+| GET | `/api/files` | 获取资料列表 |
+| DELETE | `/api/files/{file_id}` | 删除资料 |
+| POST | `/api/chat` | 提问 |
+| GET | `/api/chat/history` | 获取历史记录 |
+| DELETE | `/api/chat/history` | 清空历史记录 |
+| GET | `/api/ai/info` | 获取 AI 系统状态 |
+| POST | `/api/classify` | 对文本执行分类 |
 
-### 示例请求
+接口特点：
 
-**上传文件**
-```bash
-curl -X POST http://localhost:8000/api/upload \
-  -F "file=@test.pdf"
-```
-
-**发送问题**
-```bash
-curl -X POST http://localhost:8000/api/chat \
-  -d "question=什么是机器学习" \
-  -H "Content-Type: application/x-www-form-urlencoded"
-```
-
----
-
-## 开发说明
-
-### 演示模式说明
-
-- 有 RAG 模型时：上传资料后会进入向量检索 + 大模型回答流程
-- 没有 RAG 模型或没有 DeepSeek Key 时：系统自动切换到本地知识库检索模式
-- 本地检索模式仍支持：
-  - 上传资料
-  - 文档分类
-  - 资料库展示
-  - 基于文档内容回答问题
-  - 返回参考来源
-  - 保存对话历史
-
-### RAG 系统工作原理
-
-1. **文档处理**: 上传的文档被切分成小块文本
-2. **向量化**: 使用 BGE 模型将文本转换为向量
-3. **索引存储**: 向量存储在 FAISS 索引中
-4. **检索**: 用户提问时，将问题向量化并检索相似文本
-5. **重排序**: 使用重排序模型精排检索结果
-6. **生成回答**: 将检索到的上下文发送给 DeepSeek LLM 生成回答
-
-### 文档分类器
-
-使用朴素贝叶斯算法，自动将文档分类到以下类别：
-- 数学
-- 英语
-- 政治
-- 计算机
-- 其他
-
-### 数据库结构
-
-**files 表** - 存储上传的文件信息
-- id: 主键
-- filename: 文件名
-- filepath: 文件路径
-- file_type: 文件类型
-- file_size: 文件大小
-- category: 文档分类
-- created_at: 创建时间
-
-**chats 表** - 存储对话历史
-- id: 主键
-- question: 用户问题
-- answer: AI 回答
-- sources: 参考来源
-- created_at: 创建时间
-
----
+- `/api/upload` 会返回分类结果、文本预览、是否已写入 RAG
+- `/api/chat` 会返回回答内容、来源列表和当前模式
+- 根接口 `/` 会返回 `rag_ready`，用于前端显示当前是 RAG 模式还是演示模式
 
 ## 测试
 
 运行后端测试：
 
 ```bash
-.venv\Scripts\python.exe test_backend.py
+python test_backend.py
 ```
 
----
+当前测试覆盖：
+
+- 数据库初始化与读写
+- 文档分类器训练与分类
+- 文档处理基础能力
+- FastAPI 路由注册
+
+说明：
+
+- 测试脚本会在 `.tmp_tests/` 下生成临时数据库
+- 如果环境中未安装 `fastapi`，FastAPI 相关测试会失败，但数据库、分类器和文档处理测试仍可单独运行
 
 ## 常见问题
 
-### 1. 模型下载慢
+### 1. 完整模式启动很慢
 
-设置国内镜像：
+首次下载模型较慢，可尝试设置国内镜像：
+
 ```bash
 set HF_ENDPOINT=https://hf-mirror.com
 ```
 
-### 2. 微信小程序无法连接后端
+### 2. 小程序连接不上后端
 
-确保：
-- 手机和电脑在同一 WiFi 下
-- 关闭 Windows 防火墙
-- 使用电脑的局域网 IP 而非 localhost
+请检查：
 
-### 3. RAG 模型占用内存过大
+- 后端服务是否已启动
+- 小程序中的后端地址是否填写正确
+- 真机调试时是否使用了电脑局域网 IP
+- 手机和电脑是否处于同一网络
+- 微信开发者工具中是否关闭了不必要的域名校验限制
 
-在 `rag_system.py` 中修改参数：
-```python
-rag = RAGSystem(
-    use_hnsw=False,      # 禁用 HNSW
-    use_reranker=False,  # 禁用重排序
-    device='cpu'         # 使用 CPU
-)
-```
+### 3. 上传图片后没有识别出文字
 
----
+请确认本机已安装：
+
+- `pytesseract`
+- `Pillow`
+- 系统级 `Tesseract-OCR`
+
+### 4. 没有配置 DeepSeek Key 能不能演示
+
+可以。系统会自动切到本地检索演示模式，仍可完成上传、分类、问答和历史展示。
+
+### 5. 为什么上传成功但没有进入 RAG
+
+常见原因：
+
+- 当前是简单模式启动
+- RAG 模型初始化失败
+- 文档没有提取出有效文本
+
+这时接口返回里通常会显示资料已加入本地知识库，但不会标记为已写入 RAG。
+
+### 6. 为什么 `doc` 文件不能上传
+
+当前后端只支持 `docx`，老式 `doc` 文件会直接提示不支持。答辩或演示前建议统一将 Word 文件另存为 `docx`。
+
+## 后续可扩展方向
+
+- 增加文件分科筛选和排序能力
+- 为聊天记录增加“继续当前上下文”能力
+- 对 OCR 和 PDF 扫描件做更稳定的文本识别
+- 支持持久化保存和恢复 FAISS 索引
+- 为资料库补充预览摘要与高亮搜索结果
 
 ## 团队分工
 
 | 角色 | 姓名 | GitHub | 主要职责 |
 |------|------|--------|----------|
-| 组长 | 黄重焱 | @YanOIer | 项目管理、RAG系统、整体协调 |
-| 前端 | 袁立 | - | 微信小程序开发、UI设计 |
-| 后端 | 胡昊 | - | FastAPI后端、数据库、API开发 |
+| 组长 | 黄重焱 | @YanOIer | 项目管理、RAG 系统、整体协调 |
+| 前端 | 袁立 | - | 微信小程序开发、UI 设计 |
+| 后端 | 胡昊 | - | FastAPI 后端、数据库、API 开发 |
 
----
+## 项目状态
 
-## 功能特点
-
-| 功能 | 说明 |
-|------|------|
-| 📄 文档上传 | 支持 PDF、TXT、Word 格式 |
-| 🏷️ 智能分类 | 自动识别文档类型（数学/英语/政治/计算机/其他）|
-| 🤖 AI 问答 | 基于上传文档的智能问答 |
-| 🔍 知识溯源 | 显示答案来源，可追溯可验证 |
-| 💬 对话历史 | 保存问答记录，支持查看和继续对话 |
-
----
-
-## 许可证
+- 当前版本：`1.1.0`
+- 当前状态：已完成基础功能联调，可在 RAG 模式或演示模式下运行
 
 本项目为北京科技大学 2025 年春季人工智能课程大作业。
-
----
-
-**项目状态**: ✅ 已完成 | **最后更新**: 2026年4月16日
-
-**加油！我们一起完成这个项目！** 🚀

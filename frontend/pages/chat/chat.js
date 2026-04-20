@@ -7,6 +7,7 @@ Page({
         id: 1,
         type: 'ai',
         content: '你好！我是智学助手。请上传学习资料后，我可以基于资料内容为你解答问题。',
+        modeLabel: '',
         sources: []
       }
     ],
@@ -44,6 +45,7 @@ Page({
       id: Date.now(),
       type: 'user',
       content: content,
+      modeLabel: '',
       sources: []
     }
     
@@ -64,11 +66,12 @@ Page({
       data: { question: content },
       success: (res) => {
         if (res.data.success) {
-          const suffix = res.data.mode === 'rag' ? '\n\n[回答模式] RAG 检索增强' : '\n\n[回答模式] 本地知识库检索'
+          const modeLabel = res.data.mode === 'rag' ? 'RAG 检索增强' : '本地知识库检索'
           const aiMsg = {
             id: Date.now() + 1,
             type: 'ai',
-            content: res.data.answer + suffix,
+            content: res.data.answer,
+            modeLabel: modeLabel,
             sources: res.data.sources || []
           }
           this.setData({
@@ -91,6 +94,7 @@ Page({
       id: Date.now() + 1,
       type: 'ai',
       content: '抱歉，' + message,
+      modeLabel: '',
       sources: []
     }
     this.setData({
@@ -119,14 +123,13 @@ Page({
       success: (res) => {
         if (res.confirm) {
           this.setData({
-            messages: [
-              {
-                id: 1,
-                type: 'ai',
-                content: '你好！我是智学助手。请上传学习资料后，我可以基于资料内容为你解答问题。',
-                sources: []
-              }
-            ]
+            messages: [...this.data.messages, {
+              id: 1,
+              type: 'ai',
+              content: '你好！我是智学助手。请上传学习资料后，我可以基于资料内容为你解答问题。',
+              modeLabel: '',
+              sources: []
+            }]
           })
         }
       }

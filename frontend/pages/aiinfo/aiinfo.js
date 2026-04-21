@@ -28,20 +28,15 @@ Page({
         const ragReady = d.rag_system.status === 'ready'
         const clsReady = d.document_classifier.status === 'ready'
         const stats = d.rag_system.stats || {}
-        const kimiConfigured = d.ai_model.configured
 
         this.setData({
           loading: false,
-          ragStatus: ragReady ? '✅ RAG智能模式' : '⚙️ 本地检索模式',
+          ragStatus: ragReady ? '✅ 向量检索就绪' : '⚙️ 等待初始化',
           ragStatusColor: ragReady ? '#28a745' : '#e67e22',
-          apiStatus: kimiConfigured ? '✅ KIMI已配置' : '⚠️ 使用本地检索',
-          apiStatusColor: kimiConfigured ? '#28a745' : '#e67e22',
           classifierStatus: clsReady ? '✅ 已就绪' : '⏳ 未加载',
           classifierStatusColor: clsReady ? '#28a745' : '#999',
-          runMode: ragReady && kimiConfigured ? 'RAG 检索增强生成' : '本地关键词检索',
-          runModeDesc: ragReady && kimiConfigured
-            ? '查询时先向量化问题 → FAISS检索相关片段 → 送入KIMI大模型生成回答'
-            : '查询时对知识库文本做关键词匹配，提取相关段落直接返回（无需大模型）',
+          runMode: '本地语义检索',
+          runModeDesc: '问题向量化 → FAISS检索 → 返回相关片段',
           docCount: stats.document_count || 0,
           chunkCount: stats.chunk_count || 0
         })

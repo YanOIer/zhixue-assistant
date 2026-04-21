@@ -22,9 +22,7 @@ os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
 # RAG系统配置
 RAG_CONFIG = {
     "embedding_model": "BAAI/bge-small-zh",
-    "reranker_model": "BAAI/bge-reranker-v2-m3",
     "use_hnsw": True,
-    "use_reranker": False,  # CPU模式禁用（模型2.2GB过大）；设为True在GPU环境下启用
     "device": "cpu",
     "chunk_size": 500,
     "chunk_overlap": 100,
@@ -38,10 +36,8 @@ API_CONFIG = {
     "debug": False
 }
 
-# KIMI API配置（从环境变量或配置文件读取）
+# KIMI API配置（从环境变量读取，不填则使用本地检索）
 KIMI_API_KEY = os.getenv("MOONSHOT_API_KEY", "")
-# 如果环境变量未设置，可以使用以下方式（不推荐，密钥会暴露在代码中）
-# KIMI_API_KEY = "sk-your-api-key-here"
 if KIMI_API_KEY:
     os.environ["MOONSHOT_API_KEY"] = KIMI_API_KEY
 

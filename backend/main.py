@@ -395,14 +395,10 @@ async def ai_info():
     info = {
         "rag_system": {
             "status": "ready" if rag_system else "fallback_mode",
-            "method": "检索增强生成 (RAG)",
+            "method": "语义向量检索",
             "type": "深度学习",
-            "components": {
-                "embedding": "BAAI/bge-small-zh (本地)",
-                "retrieval": "FAISS HNSW 向量索引",
-                "reranker": "已禁用（CPU模式）",
-                "llm": "KIMI (Moonshot)" if kimi_key else "未配置"
-            },
+            "embedding": "BAAI/bge-small-zh (本地)",
+            "retrieval": "FAISS HNSW 向量索引",
             "api_configured": bool(kimi_key),
             "stats": rag_system.get_stats() if rag_system else None
         },

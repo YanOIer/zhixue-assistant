@@ -8,6 +8,11 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
+# ========== KIMI API 配置 ==========
+# 在下方填入你的 KIMI API Key（从 https://platform.moonshot.cn/ 获取）
+os.environ["MOONSHOT_API_KEY"] = "sk-your-api-key-here"
+# ===================================
+
 # ── 模块路径 ──────────────────────────────────────────────────
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 AI_MODULE    = os.path.join(PROJECT_ROOT, 'ai_module')
@@ -33,7 +38,6 @@ print("  🤖 智学助手 · RAG 完整模式")
 print("  Embedding : BAAI/bge-small-zh (本地语义向量化)")
 print("  向量检索  : FAISS HNSW 索引")
 print("  文档分类  : Naive Bayes 词袋分类器")
-print("  检索模式  : 本地语义检索（无需配置 API Key）")
 print("=" * 62)
 
 # ── 1. 初始化数据库 ────────────────────────────────────────────
@@ -47,8 +51,7 @@ print("\n[2/4] 加载 RAG 系统...")
 from rag_system import RAGSystem
 
 INDEX_PATH = os.path.join(AI_MODULE, "vector_index")
-# CPU 环境默认禁用重排序（重排序模型 2.2GB，CPU 加载极慢），如需启用请改为 True
-rag = RAGSystem(use_hnsw=True, use_reranker=False, device='cpu')
+rag = RAGSystem(use_hnsw=True, device='cpu')
 
 # 尝试加载已有索引
 if os.path.exists(f"{INDEX_PATH}.faiss"):
@@ -84,7 +87,6 @@ print(f"     切片数量 : {stats['chunk_count']}")
 print(f"     向量维度 : {stats['vector_dimension']}")
 print(f"     索引类型 : {stats['index_type']}")
 print(f"     运行设备 : {stats['device']}")
-print(f"     启用重排 : {'是' if stats['use_reranker'] else '否'}")
 
 # ── 4. 挂载 RAG 到 FastAPI ────────────────────────────────────
 print("\n[4/4] 启动 FastAPI 服务...")

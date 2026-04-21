@@ -89,7 +89,7 @@
         <text class="section-title">智能问答模块</text>
       </view>
       <view class="card">
-        <!-- RAG 流程 -->
+        <!-- 检索流程 -->
         <view class="flow-container">
           <view class="flow-step">
             <view class="step-num">1</view>
@@ -110,22 +110,15 @@
           <view class="flow-step">
             <view class="step-num">3</view>
             <view class="step-content">
-              <text class="step-title">KIMI 生成</text>
-              <text class="step-desc">Moonshot KIMI 基于上下文生成答案</text>
+              <text class="step-title">返回结果</text>
+              <text class="step-desc">将相关片段直接返回给用户</text>
             </view>
           </view>
         </view>
         
         <view class="info-row">
-          <text class="row-label">RAG 状态</text>
+          <text class="row-label">检索状态</text>
           <text class="row-status {{ragStatus.indexOf('✅') !== -1 ? 'online' : 'warning'}}">{{ragStatus}}</text>
-        </view>
-        <view class="info-row">
-          <text class="row-label">KIMI API</text>
-          <text class="row-status {{apiStatus === '✅ 已配置' ? 'online' : 'offline'}}">{{apiStatus}}</text>
-        </view>
-        <view class="tip-box">
-          <text class="tip-text">配置 KIMI API Key 可获得更智能的 AI 回答。</text>
         </view>
       </view>
     </view>

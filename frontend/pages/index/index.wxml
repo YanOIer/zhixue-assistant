@@ -45,34 +45,6 @@
     </view>
   </view>
 
-  <!-- 功能特性 -->
-  <view class="features">
-    <text class="section-label">核心能力</text>
-    <view class="feature-list">
-      <view class="feature-item">
-        <text class="feature-icon">📄</text>
-        <view class="feature-content">
-          <text class="feature-title">智能分类</text>
-          <text class="feature-desc">自动识别文档学科类型</text>
-        </view>
-      </view>
-      <view class="feature-item">
-        <text class="feature-icon">🔍</text>
-        <view class="feature-content">
-          <text class="feature-title">精准检索</text>
-          <text class="feature-desc">向量语义匹配相关片段</text>
-        </view>
-      </view>
-      <view class="feature-item">
-        <text class="feature-icon">🤖</text>
-        <view class="feature-content">
-          <text class="feature-title">KIMI 大模型</text>
-          <text class="feature-desc">基于资料生成准确回答</text>
-        </view>
-      </view>
-    </view>
-  </view>
-
   <!-- 最近文件 -->
   <view class="recent-section" wx:if="{{recentFiles.length > 0}}">
     <text class="section-label">最近上传</text>

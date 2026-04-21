@@ -1,7 +1,7 @@
 """
-RAG 检索系统
-============
-基于 BGE-small-zh Embedding + FAISS HNSW 向量索引的本地语义检索系统。
+本地语义检索系统
+================
+基于 BGE-small-zh Embedding + FAISS HNSW 向量索引的本地语义检索。
 无需外部 API Key，完全本地运行。
 """
 
@@ -16,7 +16,6 @@ import json
 import gc
 from typing import List, Dict
 from sentence_transformers import SentenceTransformer
-import requests
 import torch
 
 # ==================== 配置区域 ====================
@@ -73,12 +72,12 @@ def find_local_model(model_name: str) -> str:
 
 class RAGSystem:
     """
-    RAG 检索系统
+    本地语义检索系统
     
     功能：
     - 加载 Embedding 模型（把文字转成向量）
     - 添加文档并建立索引
-    - 搜索相关文档
+    - 搜索相关文档片段
     
     使用方法：
         rag = RAGSystem()
@@ -138,7 +137,7 @@ class RAGSystem:
         self.batch_size = 32
         
         print("\n" + "=" * 60)
-        print("RAG系统初始化完成！")
+        print("检索系统初始化完成！")
         print("=" * 60)
     
     # ==================== 文档处理 ====================
@@ -268,10 +267,10 @@ class RAGSystem:
         print(f"  找到 {len(results)} 个相关结果")
         
         # 构建上下文
-        print("\n[Step 2] 生成回答...")
+        print("\n[Step 2] 返回检索结果...")
         context_texts = [r["text"] for r in results]
         context = "\n\n---\n\n".join(context_texts)
-        answer = self._call_llm(context, question)
+        answer = self._format_answer(context, question)
         
         sources = list(set([r["doc_id"] for r in results]))
         
@@ -285,61 +284,14 @@ class RAGSystem:
             "context": context_texts
         }
     
-    def _build_prompt(self, context: str, question: str) -> str:
-        """构建给大模型的 Prompt。"""
-        return f"""你是一个专业的学习助手。请基于以下参考资料回答用户的问题。
-
-【参考资料】
-{context}
-
-【用户问题】
-{question}
-
-【回答要求】
-1. 请严格基于参考资料回答，不要添加资料外的信息
-2. 如果资料中没有相关信息，请明确说明"根据现有资料无法回答"
-3. 回答要简洁、准确、有条理
-
-请回答："""
-    
-    def _call_llm(self, context: str, question: str) -> str:
-        """调用 KIMI 大模型 API 或返回检索内容。"""
-        prompt = self._build_prompt(context, question)
-        api_key = os.getenv("MOONSHOT_API_KEY", "")
-        
-        if not api_key:
-            print("  提示: 未配置 KIMI API Key，直接返回检索内容")
-            return f"""根据本地知识库检索，找到以下相关内容：
+    def _format_answer(self, context: str, question: str) -> str:
+        """格式化检索结果为回答。"""
+        return f"""根据本地知识库检索，找到以下相关内容：
 
 {context}
 
 ---
-💡 提示：配置 KIMI API Key (MOONSHOT_API_KEY) 可获得更智能的AI回答"""
-        
-        print(f"  使用 KIMI API 生成回答...")
-        
-        try:
-            response = requests.post(
-                "https://api.moonshot.cn/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "moonshot-v1-8k",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7,
-                    "max_tokens": 1000
-                },
-                timeout=30
-            )
-            
-            result = response.json()
-            return result["choices"][0]["message"]["content"]
-            
-        except Exception as e:
-            print(f"  KIMI API调用失败: {e}")
-            return f"调用KIMI服务失败: {str(e)}"
+📚 提示：以上内容来自知识库检索结果，如需调整检索范围，请上传更多相关资料。"""
     
     # ==================== 保存/加载 ====================
     

@@ -12,7 +12,7 @@
 
 1. **文档上传与管理** - 支持 PDF、TXT、DOCX、Markdown 格式
 2. **自动文档分类** - 使用朴素贝叶斯分类器，将资料分类到"数学 / 英语 / 政治 / 计算机 / 其他"
-3. **智能问答** - 基于 RAG 检索增强生成回答，支持配置 KIMI API
+3. **智能问答** - 基于本地语义向量检索，直接返回相关片段
 4. **答案来源展示** - 聊天接口返回参考资料来源，便于结果追溯
 5. **对话历史** - 支持查看历史记录与一键清空
 
@@ -45,8 +45,7 @@
 |------|---------|
 | 前端 | 微信小程序 (WXML/WXSS/JS) |
 | 后端 | Python + FastAPI |
-| AI 检索 | BGE-small-zh + FAISS HNSW |
-| 大模型 | KIMI (Moonshot) |
+| 向量检索 | BGE-small-zh + FAISS HNSW |
 | 文档分类 | Multinomial Naive Bayes |
 | 数据库 | SQLite |
 
@@ -78,25 +77,17 @@ zhixue-assistant/
 pip install -r requirements.txt
 ```
 
-### 2. 配置 KIMI API（可选）
-
-编辑 `config.py`，填入你的 API Key：
-
-```python
-KIMI_API_KEY = "sk-your-api-key"
-```
-
-### 3. 启动后端
+### 2. 启动后端
 
 ```bash
-# RAG 完整模式（推荐）
+# RAG 完整模式（推荐，加载向量检索）
 python start_rag.py
 
-# 或简单模式（不加载 RAG，仅调试）
+# 或简单模式（不加载 RAG，仅调试前端）
 python start_simple.py
 ```
 
-### 4. 运行小程序
+### 3. 运行小程序
 
 1. 打开微信开发者工具
 2. 导入 `frontend/` 目录

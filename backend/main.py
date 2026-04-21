@@ -389,9 +389,6 @@ async def test():
 @app.get("/api/ai/info")
 async def ai_info():
     """获取 AI 系统状态。"""
-    import os
-    kimi_key = os.getenv("MOONSHOT_API_KEY", "")
-    
     info = {
         "rag_system": {
             "status": "ready" if rag_system else "fallback_mode",
@@ -399,7 +396,6 @@ async def ai_info():
             "type": "深度学习",
             "embedding": "BAAI/bge-small-zh (本地)",
             "retrieval": "FAISS HNSW 向量索引",
-            "api_configured": bool(kimi_key),
             "stats": rag_system.get_stats() if rag_system else None
         },
         "document_classifier": {
@@ -410,12 +406,6 @@ async def ai_info():
             "features": "词袋模型 + TF-IDF",
             "categories": ["数学", "英语", "政治", "计算机", "其他"],
             "is_trained": document_classifier.is_trained if document_classifier else False
-        },
-        "ai_model": {
-            "provider": "KIMI (Moonshot)",
-            "model": "moonshot-v1-8k",
-            "configured": bool(kimi_key),
-            "description": "KIMI 是月之暗面开发的国产大模型，中文理解能力强，响应速度快。" if kimi_key else "未配置 API Key，将返回检索内容"
         }
     }
     return {"success": True, "data": info}

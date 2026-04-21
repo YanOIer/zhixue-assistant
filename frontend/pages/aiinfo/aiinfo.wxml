@@ -145,12 +145,12 @@
           <text class="tech-name">SQLite</text>
         </view>
         <view class="tech-card">
-          <text class="tech-layer">AI 模型</text>
-          <text class="tech-name">KIMI</text>
-        </view>
-        <view class="tech-card">
           <text class="tech-layer">向量模型</text>
           <text class="tech-name">BGE-small-zh</text>
+        </view>
+        <view class="tech-card">
+          <text class="tech-layer">向量索引</text>
+          <text class="tech-name">FAISS HNSW</text>
         </view>
         <view class="tech-card">
           <text class="tech-layer">运行环境</text>

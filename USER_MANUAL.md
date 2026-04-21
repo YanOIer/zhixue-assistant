@@ -68,10 +68,6 @@
 **Q: 支持哪些格式？**
 > PDF、TXT、DOCX、Markdown
 
-**Q: 如何配置 KIMI API Key？**
-> 编辑 `config.py`，找到 `KIMI_API_KEY` 行填入密钥。
-> API Key 可在 [Moonshot 控制台](https://platform.moonshot.cn/) 获取。
-
 **Q: 如何备份数据？**
 > 复制 `zhixue.db` 数据库文件和 `uploads/` 文件夹
 

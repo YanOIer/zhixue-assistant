@@ -1,17 +1,12 @@
 """
 智学助手 - RAG 完整模式启动脚本
-加载 RAG 模型、向量索引、历史文档，提供完整的检索增强生成能力
+加载 RAG 模型、向量索引、历史文档，提供完整的本地语义检索能力
 """
 
 import os
 import sys
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-
-# ========== KIMI API 配置 ==========
-# 在下方填入你的 KIMI API Key（从 https://platform.moonshot.cn/ 获取）
-os.environ["MOONSHOT_API_KEY"] = "sk-your-api-key-here"
-# ===================================
 
 # ── 模块路径 ──────────────────────────────────────────────────
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
